@@ -1,10 +1,10 @@
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
+import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.vector.Vector3f;
 
 public class Camera {
-    public static float moveSpeed = 0.5f;
+    public static float moveSpeed = 0.01f;
 
     private static float maxLook = 85;
 
@@ -14,7 +14,7 @@ public class Camera {
     private static Vector3f rotation;
 
     public static void create() {
-        pos = new Vector3f(0, 0, 0);
+        pos = new Vector3f(0, 0, 10);
         rotation = new Vector3f(0, 0, 0);
     }
 
@@ -25,11 +25,12 @@ public class Camera {
             rotation.y += 360;
         }
 
+
         //System.out.println(rotation);
-        GL11.glRotatef(rotation.x, 1, 0, 0);
-        GL11.glRotatef(rotation.y, 0, 1, 0);
-        GL11.glRotatef(rotation.z, 0, 0, 1);
-        GL11.glTranslatef(-pos.x, -pos.y, -pos.z);
+        glRotatef(rotation.x, 1, 0, 0);
+        glRotatef(rotation.y, 0, 1, 0);
+        glRotatef(rotation.z, 0, 0, 1);
+        glTranslatef(-pos.x, -pos.y, -pos.z);
     }
 
     public static void acceptInput(float delta) {
