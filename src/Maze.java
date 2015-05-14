@@ -1,3 +1,5 @@
+import org.lwjgl.util.vector.Vector3f;
+
 import java.util.*;
 
 /**
@@ -15,6 +17,8 @@ public class Maze {
     int[] end = {1, 1};
 
     Cell[][] grid;
+    Cell maxCell;
+    Cell startCell;
 
     int rows;
     int cols;
@@ -70,7 +74,11 @@ public class Maze {
         Deque<Cell> cells = new ArrayDeque<>(totalCells);
         Random random = new Random();
         Cell currentCell = this.grid[random.nextInt(this.rows)][random.nextInt(this.cols)];
+        startCell = currentCell;
         this.setStart(currentCell.row, currentCell.col);
+        maxCell = null;
+        int depth = 1;
+        int maxDepth = 0;
 
         while (visitedCells < totalCells) {
             random = new Random();
@@ -85,14 +93,21 @@ public class Maze {
                 while (chosenCell == null) chosenCell = neighbors[dir = random.nextInt(neighbors.length)];
                 this.breakWall(currentCell, chosenCell, dir);
                 cells.push(currentCell);
+                depth++;
                 currentCell = chosenCell;
                 visitedCells++;
             } else {
+                if(depth > maxDepth) {
+                    maxCell = currentCell;
+                    maxDepth = depth;
+                }
                 currentCell = cells.pop();
+
+                depth--;
             }
         }
 
-        Cell last = currentCell;
+        Cell last = maxCell;
         this.setEnd(last.row, last.col);
     }
 
@@ -165,6 +180,17 @@ public class Maze {
 
         System.out.println("Start: " + Arrays.toString(start));
         System.out.println("End: " + Arrays.toString(end));
+    }
+
+    public Cell getCurrent(Vector3f pos, float scale){
+        float x = pos.x;
+        float z = pos.z;
+
+        int row = (int) (z/scale);
+        int col = (int) (x/scale);
+
+        return grid[row][col];
+
     }
 
 }

@@ -8,7 +8,7 @@ public class Camera {
 
     private static float maxLook = 85;
 
-    private static float mouseSensitivity = 0.05f;
+    private static float mouseSensitivity = 0.1f;
 
     private static Vector3f pos;
     private static Vector3f rotation;
@@ -40,6 +40,15 @@ public class Camera {
     }
 
     public static void acceptInputRotate(float delta) {
+        boolean keyRight = Keyboard.isKeyDown(Keyboard.KEY_D);
+        boolean keyLeft = Keyboard.isKeyDown(Keyboard.KEY_A);
+
+        if(keyRight)
+            rotation.y += mouseSensitivity*delta;
+        if(keyLeft)
+            rotation.y -= mouseSensitivity*delta;
+
+        /*
         if (Mouse.isInsideWindow() && Mouse.isButtonDown(0)) {
             float mouseDX = Mouse.getDX();
             float mouseDY = -Mouse.getDY();
@@ -48,17 +57,14 @@ public class Camera {
             rotation.x += mouseDY * mouseSensitivity * delta;
             rotation.x = Math.max(-maxLook, Math.min(maxLook, rotation.x));
         }
+        */
     }
 
     public static void acceptInputMove(float delta) {
         boolean keyUp = Keyboard.isKeyDown(Keyboard.KEY_W);
         boolean keyDown = Keyboard.isKeyDown(Keyboard.KEY_S);
-        boolean keyRight = Keyboard.isKeyDown(Keyboard.KEY_D);
-        boolean keyLeft = Keyboard.isKeyDown(Keyboard.KEY_A);
         boolean keyFast = Keyboard.isKeyDown(Keyboard.KEY_Q);
         boolean keySlow = Keyboard.isKeyDown(Keyboard.KEY_E);
-        boolean keyFlyUp = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
-        boolean keyFlyDown = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
         Vector3f tmp = new Vector3f(pos);
 
         float speed;
@@ -73,12 +79,6 @@ public class Camera {
 
         speed *= delta;
 
-        if (keyFlyUp) {
-            tmp.y += speed;
-        }
-        if (keyFlyDown) {
-            tmp.y -= speed;
-        }
 
         if (keyDown) {
             tmp.x -= Math.sin(Math.toRadians(rotation.y)) * speed;
@@ -88,20 +88,12 @@ public class Camera {
             tmp.x += Math.sin(Math.toRadians(rotation.y)) * speed;
             tmp.z -= Math.cos(Math.toRadians(rotation.y)) * speed;
         }
-        if (keyLeft) {
-            tmp.x += Math.sin(Math.toRadians(rotation.y - 90)) * speed;
-            tmp.z -= Math.cos(Math.toRadians(rotation.y - 90)) * speed;
-        }
-        if (keyRight) {
-            tmp.x += Math.sin(Math.toRadians(rotation.y + 90)) * speed;
-            tmp.z -= Math.cos(Math.toRadians(rotation.y + 90)) * speed;
-        }
 
-        if(tmp.length() > 1.5f)
-            pos = tmp;
+        Cell cell = Scene.maze.getCurrent(tmp, Scene.scale);
+        //System.out.println("Current: " + cell.row + " " + cell.col);
 
 
-        //pos = tmp;
+        pos = tmp;
     }
 
     public static void setSpeed(float speed) {
