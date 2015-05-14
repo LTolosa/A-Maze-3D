@@ -1,6 +1,9 @@
 import org.lwjgl.util.vector.Vector3f;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.Random;
 
 /**
  * Maze generating class.
@@ -9,8 +12,8 @@ import java.util.*;
 public class Maze {
 
     static final byte NORTH = 0;
-    static final byte EAST  = 1;
-    static final byte WEST  = 2;
+    static final byte EAST = 1;
+    static final byte WEST = 2;
     static final byte SOUTH = 3;
 
     int[] start = {0, 0};
@@ -97,7 +100,7 @@ public class Maze {
                 currentCell = chosenCell;
                 visitedCells++;
             } else {
-                if(depth > maxDepth) {
+                if (depth > maxDepth) {
                     maxCell = currentCell;
                     maxDepth = depth;
                 }
@@ -149,28 +152,28 @@ public class Maze {
         }
     }
 
-    public void display(){
-        for(int i = 0; i < this.cols; i++){
+    public void display() {
+        for (int i = 0; i < this.cols; i++) {
             Cell cur = this.grid[0][i];
-            if(cur.walls[0])
+            if (cur.walls[0])
                 System.out.print(" _");
         }
         System.out.println();
-        for(int i = 0; i < this.rows; i++){
-            for(int j = 0; j < this.cols; j++){
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
                 Cell cur = this.grid[i][j];
-                if(j == 0){
-                    if(cur.walls[2])
+                if (j == 0) {
+                    if (cur.walls[2])
                         System.out.print("|");
                     else
                         System.out.print(" ");
                 }
 
-                if(cur.walls[3])
+                if (cur.walls[3])
                     System.out.print("_");
                 else
                     System.out.print(" ");
-                if(cur.walls[1])
+                if (cur.walls[1])
                     System.out.print("|");
                 else
                     System.out.print(" ");
@@ -182,14 +185,35 @@ public class Maze {
         System.out.println("End: " + Arrays.toString(end));
     }
 
-    public Cell getCurrent(Vector3f pos, float scale){
+    public Cell getCurrent(Vector3f pos, float scale) {
         float x = pos.x;
         float z = pos.z;
 
-        int row = (int) (z/scale);
-        int col = (int) (x/scale);
+        int row = (int) (z / scale);
+        int col = (int) (x / scale);
 
         return grid[row][col];
+
+    }
+
+    public void setVisibleCells(Vector3f pos, float scale) {
+        float x = pos.x;
+        float z = pos.z;
+
+        int row = (int) (z / scale);
+        int col = (int) (x / scale);
+
+        grid[row][col].visible = true; // current Cell has been visible
+
+        //make surrounding Cells visible
+        if (row > 0) grid[row - 1][col].visible = true;
+        if (col > 0) grid[row][col - 1].visible = true;
+        if (row < rows - 1) grid[row + 1][col].visible = true;
+        if (col < cols - 1) grid[row][col + 1].visible = true;
+        if (row > 0 && col < cols - 1) grid[row - 1][col + 1].visible = true;
+        if (row < rows - 1 && col < cols - 1) grid[row + 1][col + 1].visible = true;
+        if (row < rows - 1 && col > 0) grid[row + 1][col - 1].visible = true;
+        if (row > 0 && col > 0) grid[row - 1][col - 1].visible = true;
 
     }
 

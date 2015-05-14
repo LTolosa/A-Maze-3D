@@ -56,7 +56,9 @@ public class Scene {
     Texture wall;
     Texture floor;
 
-    Audio wavEffect;
+    Audio spooky_ambience;
+    Audio chest_fanfare;
+
     int tileDL;
     int floorDL;
     int wallDL;
@@ -95,7 +97,18 @@ public class Scene {
             renderGL(delta);
             lights();
             Display.update();
-            if(maze.getCurrent(Camera.getPos(), scale).equals(maze.maxCell)) {
+
+            // if chest is reached
+            if (maze.getCurrent(Camera.getPos(), scale).equals(maze.maxCell)) {
+
+                spooky_ambience.stop();
+                chest_fanfare.playAsSoundEffect(1.0f, 1.0f, false);
+
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 closeRequested = true;
             }
         }
@@ -136,7 +149,7 @@ public class Scene {
         glFogi(GL_FOG_MODE, fogMode[fogfilter]);                  // Fog Mode
         temp.asFloatBuffer().put(fogColor).flip();
         glFog(GL_FOG_COLOR, temp.asFloatBuffer());                // Set Fog Color
-        glFogf(GL_FOG_DENSITY, 0.08f);                            // How Dense Will The Fog Be
+        glFogf(GL_FOG_DENSITY, 0.05f);                            // How Dense Will The Fog Be
         glHint(GL_FOG_HINT, GL_DONT_CARE);                   // Fog Hint Value
         //glFogf(GL_FOG_START, 1.0f);                               // Fog Start Depth
         //glFogf(GL_FOG_END, 5.0f);                                 // Fog End Depth
@@ -185,8 +198,10 @@ public class Scene {
             wall = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon_walls_1.jpg"));
             floor = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon__floor.jpg"));
 
-            wavEffect = AudioLoader.getAudio("WAV", ResourceLoader.getResourceAsStream("sounds/spooky_ambience.wav"));
-            wavEffect.playAsSoundEffect(1.0f, 1.0f, false);
+            spooky_ambience = AudioLoader.getAudio("WAV", ResourceLoader.getResourceAsStream("sounds/spooky_ambience.wav"));
+            spooky_ambience.playAsSoundEffect(1.0f, 1.0f, true);
+
+            chest_fanfare = AudioLoader.getAudio("WAV", ResourceLoader.getResourceAsStream("sounds/chest_fanfare.wav"));
 
             // polling is required to allow streaming to get a chance to
             // queue buffers
@@ -280,50 +295,53 @@ public class Scene {
         glPushMatrix();
         glLoadIdentity();
 
-        float lineSize = .002f;
+        Cell currCell = maze.getCurrent(Camera.getPos(), scale);
+        int x = currCell.col;
+        int y = currCell.row;
 
+        maze.setVisibleCells(Camera.getPos(), scale);
+
+        Cell endCell = maze.maxCell;
+        int endX = endCell.col;
+        int endY = endCell.row;
+
+        float lineSize = .002f;
         glColor3f(1f, 1f, 1f);
 
         for (int i = 0; i < maze.rows; i++) {
             for (int j = 0; j < maze.cols; j++) {
                 Cell curr = maze.grid[i][j];
-                if (curr.walls[0]) {
-                    glBegin(GL_LINES);
-                    glVertex3f(.045f + lineSize * j, .035f - lineSize * i, -0.1f);
-                    glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * i, -0.1f);
-                    glEnd();
-                }
+                if (curr.visible) {
+                    if (curr.walls[0]) {
+                        glBegin(GL_LINES);
+                        glVertex3f(.045f + lineSize * j, .035f - lineSize * i, -0.1f);
+                        glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * i, -0.1f);
+                        glEnd();
+                    }
 
-                if (curr.walls[3]) {
-                    glBegin(GL_LINES);
-                    glVertex3f(.045f + lineSize * j, .035f - lineSize * (i + 1), -0.1f);
-                    glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * (i + 1), -0.1f);
-                    glEnd();
-                }
+                    if (curr.walls[3]) {
+                        glBegin(GL_LINES);
+                        glVertex3f(.045f + lineSize * j, .035f - lineSize * (i + 1), -0.1f);
+                        glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * (i + 1), -0.1f);
+                        glEnd();
+                    }
 
-                if (curr.walls[2]) {
-                    glBegin(GL_LINES);
-                    glVertex3f(.045f + lineSize * j, .035f - lineSize * i, -0.1f);
-                    glVertex3f(.045f + lineSize * j, .035f - lineSize * (i + 1), -0.1f);
-                    glEnd();
-                }
+                    if (curr.walls[2]) {
+                        glBegin(GL_LINES);
+                        glVertex3f(.045f + lineSize * j, .035f - lineSize * i, -0.1f);
+                        glVertex3f(.045f + lineSize * j, .035f - lineSize * (i + 1), -0.1f);
+                        glEnd();
+                    }
 
-                if (curr.walls[1]) {
-                    glBegin(GL_LINES);
-                    glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * i, -0.1f);
-                    glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * (i + 1), -0.1f);
-                    glEnd();
+                    if (curr.walls[1]) {
+                        glBegin(GL_LINES);
+                        glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * i, -0.1f);
+                        glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * (i + 1), -0.1f);
+                        glEnd();
+                    }
                 }
             }
         }
-
-        Cell currCell = maze.getCurrent(Camera.getPos(), scale);
-        int x = currCell.col;
-        int y = currCell.row;
-
-        Cell endCell = maze.maxCell;
-        int endX = endCell.col;
-        int endY = endCell.row;
 
         glBegin(GL_QUADS);
         glColor3f(1f, 0f, 0f);
