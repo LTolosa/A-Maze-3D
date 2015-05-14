@@ -53,31 +53,31 @@ public class FogCube {
         getDelta(); // Initialise delta timer
         initGL();
 
-        maze = new Maze(20, 20);
+        maze = new Maze(10, 10);
         maze.generate();
-        Cell[][] grid = maze.getGrid();
+        Cell[][] grid = maze.grid;
 
-        for(int i = 0; i < 20; i++){
+        for (int i = 0; i < maze.cols; i++) {
             Cell cur = grid[0][i];
-            if(cur.walls[0])
+            if (cur.walls[0])
                 System.out.print(" _");
         }
         System.out.println();
-        for(int i = 0; i < 20; i++){
-            for(int j = 0; j < 20; j++){
+        for (int i = 0; i < maze.cols; i++) {
+            for (int j = 0; j < maze.rows; j++) {
                 Cell cur = grid[i][j];
-                if(j == 0){
-                    if(cur.walls[2])
+                if (j == 0) {
+                    if (cur.walls[2])
                         System.out.print("|");
                     else
                         System.out.print(" ");
                 }
 
-                if(cur.walls[3])
+                if (cur.walls[3])
                     System.out.print("_");
                 else
                     System.out.print(" ");
-                if(cur.walls[1])
+                if (cur.walls[1])
                     System.out.print("|");
                 else
                     System.out.print(" ");
@@ -85,8 +85,8 @@ public class FogCube {
             System.out.println();
         }
 
-        System.out.println("Start: " + Arrays.toString(maze.getStart()));
-        System.out.println("End: " + Arrays.toString(maze.getEnd()));
+        System.out.println("Start: " + Arrays.toString(maze.start));
+        System.out.println("End: " + Arrays.toString(maze.end));
         while (!closeRequested) {
             int delta = getDelta();
             pollInput(delta);
@@ -220,45 +220,41 @@ public class FogCube {
         glEnd();
         glPopMatrix();
 
-        /*
-        glBegin(GL_QUADS); // Start Drawing The Cube
-            glColor3f(0.0f, 1.0f, 0.0f); // Set The Color To Green
-            glVertex3f(1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Top)
-            glVertex3f(-1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Top)
-            glVertex3f(-1.0f, 1.0f, 1.0f); // Bottom Left Of The Quad (Top)
-            glVertex3f(1.0f, 1.0f, 1.0f); // Bottom Right Of The Quad (Top)
+        // map of maze
+        glDisable(GL_LIGHTING);
+        glPushMatrix();
+        glLoadIdentity();
+        glBegin(GL_QUADS);
+        glColor3f(1f, 1f, 1f);
+        glVertex3f(.03f, .015f, -0.1f);
+        glVertex3f(.05f, .015f, -0.1f);
+        glVertex3f(.05f, .035f, -0.1f);
+        glVertex3f(.03f, .035f, -0.1f);
+        glEnd();
 
-            glColor3f(1.0f, 0.5f, 0.0f); // Set The Color To Orange
-            glVertex3f(1.0f, -1.0f, 1.0f); // Top Right Of The Quad (Bottom)
-            glVertex3f(-1.0f, -1.0f, 1.0f); // Top Left Of The Quad (Bottom)
-            glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Bottom)
-            glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Bottom)
+        float lineSize = .002f;
 
-            glColor3f(1.0f, 0.0f, 0.0f); // Set The Color To Red
-            glVertex3f(1.0f, 1.0f, 1.0f); // Top Right Of The Quad (Front)
-            glVertex3f(-1.0f, 1.0f, 1.0f); // Top Left Of The Quad (Front)
-            glVertex3f(-1.0f, -1.0f, 1.0f); // Bottom Left Of The Quad (Front)
-            glVertex3f(1.0f, -1.0f, 1.0f); // Bottom Right Of The Quad (Front)
+        glBegin(GL_LINES);
+        glColor3f(0f, 0f, 0f);
+        glVertex3f(.034f, .0154f, -0.105f);
+        glVertex3f(.036f, .0154f, -0.105f);
+        glEnd();
 
-            glColor3f(1.0f, 1.0f, 0.0f); // Set The Color To Yellow
-            glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Back)
-            glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Back)
-            glVertex3f(-1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Back)
-            glVertex3f(1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Back)
+        for (int i = 0; i < maze.rows; i++) {
+            for (int j = 0; j < maze.cols; j++) {
+                Cell curr = maze.grid[i][j];
+                if (curr.walls[0]) {
+                    glBegin(GL_LINES);
+                    glColor3f(0f, 0f, 0f);
+                    glVertex3f(.03f + lineSize * j, .015f + lineSize * i, -0.105f);
+                    glVertex3f(.03f + lineSize * (j + 1), .015f + lineSize * i, -0.105f);
+                    glEnd();
+                }
+            }
+        }
 
-            glColor3f(0.0f, 0.0f, 1.0f); // Set The Color To Blue
-            glVertex3f(-1.0f, 1.0f, 1.0f); // Top Right Of The Quad (Left)
-            glVertex3f(-1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Left)
-            glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Left)
-            glVertex3f(-1.0f, -1.0f, 1.0f); // Bottom Right Of The Quad (Left)
-
-            glColor3f(1.0f, 0.0f, 1.0f); // Set The Color To Violet
-            glVertex3f(1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Right)
-            glVertex3f(1.0f, 1.0f, 1.0f); // Top Left Of The Quad (Right)
-            glVertex3f(1.0f, -1.0f, 1.0f); // Bottom Left Of The Quad (Right)
-            glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Right)
-        glEnd(); // Done Drawing The Quad
-        */
+        glPopMatrix();
+        glEnable(GL_LIGHTING);
     }
 
     private void renderRock() {
