@@ -71,15 +71,15 @@ public class Maze {
         this.setStart(currentCell.row, currentCell.col);
 
         while (visitedCells < totalCells) {
-            System.out.println("First while loop!" + visitedCells);
+            System.out.println("First while loop! " + visitedCells + " [" + currentCell.row + ", " + currentCell.col + "] " + Arrays.toString(currentCell.walls));
             Cell[] neighbors = getNeighbors(currentCell);
-            boolean isEmpty = true;
+            int count = 0;
             for (Cell n : neighbors){
-                if(n != null){
-                    isEmpty = false;
-                    break;
-                }
+                if(n != null)
+                    count++;
             }
+            boolean isEmpty = (count == 0);
+
             if (!isEmpty) {
                 Cell chosenCell = null;
                 int dir = 0;
@@ -90,6 +90,7 @@ public class Maze {
                 visitedCells++;
             } else {
                 currentCell = cells.pop();
+
             }
         }
 
@@ -102,19 +103,19 @@ public class Maze {
         Cell[] nbrs = new Cell[4];
         if (cell.row != 0) {
             temp = this.grid[cell.row - 1][cell.col];
-            if (temp.hasAllWalls()) nbrs[NORTH] = temp;
+            nbrs[NORTH] = temp.hasAllWalls() ? temp : null;
         }
         if (cell.col != this.cols - 1) {
             temp = this.grid[cell.row][cell.col + 1];
-            if (temp.hasAllWalls()) nbrs[EAST] = temp;
+            nbrs[EAST] = temp.hasAllWalls() ? temp : null;
         }
         if (cell.col != 0) {
             temp = this.grid[cell.row][cell.col - 1];
-            if (temp.hasAllWalls()) nbrs[WEST] = temp;
+            nbrs[WEST] = temp.hasAllWalls() ? temp : null;
         }
         if (cell.row != this.rows - 1) {
             temp = this.grid[cell.row + 1][cell.col];
-            if (temp.hasAllWalls()) nbrs[SOUTH] = temp;
+            nbrs[SOUTH] = temp.hasAllWalls() ? temp : null;
         }
         return nbrs;
     }
