@@ -50,6 +50,7 @@ public class Scene {
     Mesh rock;
     Mesh chest;
     Mesh ghost;
+    Mesh skull;
 
     static Maze maze;
 
@@ -194,6 +195,9 @@ public class Scene {
 
             ghost = new Mesh("models/", "Creature.obj");
             ghost.loadModel();
+
+            skull = new Mesh("models/", "Skull.obj");
+            skull.loadModel();
 
             wall = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon_walls_1.jpg"));
             floor = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon__floor.jpg"));
@@ -499,15 +503,20 @@ public class Scene {
         float z = maze.end[0] * 10 + 5;
 
         if (dir == Maze.NORTH)
-            z += 5;
+            z += 3;
         else if (dir == Maze.EAST)
-            x += 5;
+            x += 3;
         else if (dir == Maze.WEST)
-            x -= 5;
+            x -= 3;
         else if (dir == Maze.SOUTH)
-            z -= 5;
-
+            z -= 3;
         lightsChest(x, z);
+
+        glPushMatrix();
+            glTranslatef(x, 0f, z);
+            glScalef(3f, 3f, 3f);
+            skull.renderMesh();
+        glPopMatrix();
     }
 
     private void renderGhost() {
