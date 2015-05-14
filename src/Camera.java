@@ -59,6 +59,7 @@ public class Camera {
         boolean keySlow = Keyboard.isKeyDown(Keyboard.KEY_E);
         boolean keyFlyUp = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
         boolean keyFlyDown = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
+        Vector3f tmp = new Vector3f(pos);
 
         float speed;
 
@@ -73,28 +74,34 @@ public class Camera {
         speed *= delta;
 
         if (keyFlyUp) {
-            pos.y += speed;
+            tmp.y += speed;
         }
         if (keyFlyDown) {
-            pos.y -= speed;
+            tmp.y -= speed;
         }
 
         if (keyDown) {
-            pos.x -= Math.sin(Math.toRadians(rotation.y)) * speed;
-            pos.z += Math.cos(Math.toRadians(rotation.y)) * speed;
+            tmp.x -= Math.sin(Math.toRadians(rotation.y)) * speed;
+            tmp.z += Math.cos(Math.toRadians(rotation.y)) * speed;
         }
         if (keyUp) {
-            pos.x += Math.sin(Math.toRadians(rotation.y)) * speed;
-            pos.z -= Math.cos(Math.toRadians(rotation.y)) * speed;
+            tmp.x += Math.sin(Math.toRadians(rotation.y)) * speed;
+            tmp.z -= Math.cos(Math.toRadians(rotation.y)) * speed;
         }
         if (keyLeft) {
-            pos.x += Math.sin(Math.toRadians(rotation.y - 90)) * speed;
-            pos.z -= Math.cos(Math.toRadians(rotation.y - 90)) * speed;
+            tmp.x += Math.sin(Math.toRadians(rotation.y - 90)) * speed;
+            tmp.z -= Math.cos(Math.toRadians(rotation.y - 90)) * speed;
         }
         if (keyRight) {
-            pos.x += Math.sin(Math.toRadians(rotation.y + 90)) * speed;
-            pos.z -= Math.cos(Math.toRadians(rotation.y + 90)) * speed;
+            tmp.x += Math.sin(Math.toRadians(rotation.y + 90)) * speed;
+            tmp.z -= Math.cos(Math.toRadians(rotation.y + 90)) * speed;
         }
+
+        if(tmp.length() > 1.5f)
+            pos = tmp;
+
+
+        //pos = tmp;
     }
 
     public static void setSpeed(float speed) {

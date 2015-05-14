@@ -30,7 +30,7 @@ public class Mesh {
     private FloatBuffer shininess;
 
     private Vector3f pos;
-    private Texture texture;
+    public Texture texture;
     private String texName;
 
     private String path;
@@ -52,7 +52,6 @@ public class Mesh {
         loadObj(file);
         loadLightBufs();
         loadTexture();
-
         pos = new Vector3f(0f, 0f, 0f);
 
 
@@ -73,7 +72,7 @@ public class Mesh {
                 int[] t = face[2];
 
                 for(int i = 0; i < 3; i++) {
-                    glTexCoord2f(textures.get(t[i] - 1).x, textures.get(t[i] - 1).y);
+                    glTexCoord2f(textures.get(t[i] - 1).x%texture.getWidth(), textures.get(t[i] - 1).y);
                     glNormal3f(normals.get(n[i] - 1).x, normals.get(n[i] - 1).y, normals.get(n[i] - 1).z);
                     glVertex3f(vertices.get(v[i] - 1).x, vertices.get(v[i] - 1).y, vertices.get(v[i] - 1).z);
                 }

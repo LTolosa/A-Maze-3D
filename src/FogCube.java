@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -40,6 +41,7 @@ public class FogCube {
 
     Mesh rock;
     Mesh chest;
+    Maze maze;
 
     Texture wall;
     Texture floor;
@@ -51,6 +53,40 @@ public class FogCube {
         getDelta(); // Initialise delta timer
         initGL();
 
+        maze = new Maze(10, 10);
+        maze.generate();
+        Cell[][] grid = maze.getGrid();
+
+        for(int i = 0; i < 10; i++){
+            Cell cur = grid[0][i];
+            if(cur.walls[0])
+                System.out.print(" _");
+        }
+        System.out.println();
+        for(int i = 0; i < 10; i++){
+            for(int j = 0; j < 10; j++){
+                Cell cur = grid[i][j];
+                if(j == 0){
+                    if(cur.walls[2])
+                        System.out.print("|");
+                    else
+                        System.out.print(" ");
+                }
+
+                if(cur.walls[3])
+                    System.out.print("_");
+                else
+                    System.out.print(" ");
+                if(cur.walls[1])
+                    System.out.print("|");
+                else
+                    System.out.print(" ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("Start: " + Arrays.toString(maze.getStart()));
+        System.out.println("End: " + Arrays.toString(maze.getEnd()));
         while (!closeRequested) {
             int delta = getDelta();
             pollInput(delta);

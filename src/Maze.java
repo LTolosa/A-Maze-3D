@@ -71,7 +71,7 @@ public class Maze {
         this.setStart(currentCell.row, currentCell.col);
 
         while (visitedCells < totalCells) {
-            System.out.println("First while loop! " + visitedCells + " [" + currentCell.row + ", " + currentCell.col + "] " + Arrays.toString(currentCell.walls));
+            random = new Random();
             Cell[] neighbors = getNeighbors(currentCell);
             int count = 0;
             for (Cell n : neighbors){
@@ -84,13 +84,14 @@ public class Maze {
                 Cell chosenCell = null;
                 int dir = 0;
                 while (chosenCell == null) chosenCell = neighbors[dir = random.nextInt(neighbors.length)];
-                breakWall(currentCell, chosenCell, dir);
+                this.breakWall(currentCell, chosenCell, dir);
+                System.out.println(visitedCells + " dir: " + dir + " [" + currentCell.row + ", " + currentCell.col + "] " + Arrays.toString(currentCell.walls));
                 cells.push(currentCell);
                 currentCell = chosenCell;
                 visitedCells++;
             } else {
+                System.out.println(visitedCells + " dir:  " + " [" + currentCell.row + ", " + currentCell.col + "] " + Arrays.toString(currentCell.walls));
                 currentCell = cells.pop();
-
             }
         }
 
@@ -122,23 +123,58 @@ public class Maze {
 
     public void breakWall(Cell cur, Cell nxt, int dir) {
         if (dir == NORTH) {
-            cur.solution[NORTH] = true;
+            //cur.solution[NORTH] = true;
             cur.walls[NORTH] = false;
             nxt.walls[SOUTH] = false;
         } else if (dir == EAST) {
-            cur.solution[EAST] = true;
+            //cur.solution[EAST] = true;
             cur.walls[EAST] = false;
             nxt.walls[WEST] = false;
         } else if (dir == WEST) {
-            cur.solution[WEST] = true;
+            //cur.solution[WEST] = true;
             cur.walls[WEST] = false;
             nxt.walls[EAST] = false;
         } else if (dir == SOUTH) {
-            cur.solution[SOUTH] = true;
+            //cur.solution[SOUTH] = true;
             cur.walls[SOUTH] = false;
             nxt.walls[NORTH] = true;
         }
     }
+
+    public void display(){
+        for(int i = 0; i < 10; i++){
+            Cell cur = this.grid[0][i];
+            if(cur.walls[0])
+                System.out.print(" _");
+        }
+        System.out.println();
+        for(int i = 0; i < 10; i++){
+            for(int j = 0; j < 10; j++){
+                Cell cur = this.grid[i][j];
+                if(j == 0){
+                    if(cur.walls[2])
+                        System.out.print("|");
+                    else
+                        System.out.print(" ");
+                }
+
+                if(cur.walls[3])
+                    System.out.print("_");
+                else
+                    System.out.print(" ");
+                if(cur.walls[1])
+                    System.out.print("|");
+                else
+                    System.out.print(" ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("Start: " + Arrays.toString(start));
+        System.out.println("End: " + Arrays.toString(end));
+    }
+
+
 
     public int[] getStart(){
         return this.start;
