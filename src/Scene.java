@@ -58,6 +58,7 @@ public class Scene {
 
         maze = new Maze(10, 10);
         maze.generate();
+        maze.display();
         loadTile();
         loadFloor(maze);
 
@@ -136,7 +137,7 @@ public class Scene {
             floor = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon__floor.jpg"));
 
             wavEffect = AudioLoader.getAudio("WAV", ResourceLoader.getResourceAsStream("sounds/spooky_ambience.wav"));
-            wavEffect.playAsSoundEffect(1.0f, 1.0f, false);
+            //wavEffect.playAsSoundEffect(1.0f, 1.0f, false);
 
             // polling is required to allow streaming to get a chance to
             // queue buffers
@@ -196,14 +197,36 @@ public class Scene {
         glEnd();
         float lineSize = .002f;
 
+        glColor3f(0f, 0f, 0f);
+
         for (int i = 0; i < maze.rows; i++) {
             for (int j = 0; j < maze.cols; j++) {
                 Cell curr = maze.grid[i][j];
                 if (curr.walls[0]) {
                     glBegin(GL_LINES);
-                    glColor3f(0f, 0f, 0f);
-                    glVertex3f(.03f + lineSize * j, .015f + lineSize * i, -0.105f);
-                    glVertex3f(.03f + lineSize * (j + 1), .015f + lineSize * i, -0.105f);
+                    glVertex3f(.03f + lineSize * j, .005f - lineSize * i, -0.1201f);
+                    glVertex3f(.03f + lineSize * (j + 1), .005f - lineSize * i, -0.1201f);
+                    glEnd();
+                }
+
+                if (curr.walls[3]) {
+                    glBegin(GL_LINES);
+                    glVertex3f(.03f + lineSize * j, .005f - lineSize * (i + 1), -0.1201f);
+                    glVertex3f(.03f + lineSize * (j + 1), .005f - lineSize * (i + 1), -0.1201f);
+                    glEnd();
+                }
+
+                if (curr.walls[2]) {
+                    glBegin(GL_LINES);
+                    glVertex3f(.03f + lineSize * j, .005f - lineSize * i, -0.1201f);
+                    glVertex3f(.03f + lineSize * j, .005f - lineSize * (i + 1), -0.1201f);
+                    glEnd();
+                }
+
+                if (curr.walls[1]) {
+                    glBegin(GL_LINES);
+                    glVertex3f(.03f + lineSize * (j + 1), .005f - lineSize * i, -0.1201f);
+                    glVertex3f(.03f + lineSize * (j + 1), .005f - lineSize * (i + 1), -0.1201f);
                     glEnd();
                 }
             }
@@ -214,46 +237,46 @@ public class Scene {
 
     }
 
-    private void loadTile(){
+    private void loadTile() {
         tileDL = glGenLists(1);
         glNewList(tileDL, GL_COMPILE);
-            glBegin(GL_QUADS);
-            glTexCoord2f(0f, 1f);
-            glVertex3f(0.0f, 0.0f, 1.0f); // Bottom Left Of The Quad (Back)
-            glTexCoord2f(1f, 1f);
-            glVertex3f(1.0f, 0.0f, 1.0f); // Bottom Right Of The Quad (Back)
-            glTexCoord2f(1f, 0f);
-            glVertex3f(1.0f, 0.0f, 0.0f); // Top Right Of The Quad (Back)
-            glTexCoord2f(0f, 0f);
-            glVertex3f(0.0f, 0.0f, 0.0f); // Top Left Of The Quad (Back)
-            glEnd();
+        glBegin(GL_QUADS);
+        glTexCoord2f(0f, 1f);
+        glVertex3f(0.0f, 0.0f, 1.0f); // Bottom Left Of The Quad (Back)
+        glTexCoord2f(1f, 1f);
+        glVertex3f(1.0f, 0.0f, 1.0f); // Bottom Right Of The Quad (Back)
+        glTexCoord2f(1f, 0f);
+        glVertex3f(1.0f, 0.0f, 0.0f); // Top Right Of The Quad (Back)
+        glTexCoord2f(0f, 0f);
+        glVertex3f(0.0f, 0.0f, 0.0f); // Top Left Of The Quad (Back)
+        glEnd();
         glEndList();
     }
 
 
-    private void loadFloor(Maze maze){
+    private void loadFloor(Maze maze) {
         floorDL = glGenLists(1);
         glNewList(floorDL, GL_COMPILE);
-            for(int i = 0; i < maze.rows; i++){
-                for(int j = 0; j < maze.cols; j++){
-                    glPushMatrix();
-                        glTranslatef(i, 0, j);
-                        glCallList(tileDL);
-                    glPopMatrix();
-                }
+        for (int i = 0; i < maze.rows; i++) {
+            for (int j = 0; j < maze.cols; j++) {
+                glPushMatrix();
+                glTranslatef(i, 0, j);
+                glCallList(tileDL);
+                glPopMatrix();
             }
+        }
         glEndList();
     }
 
-    private void renderFloor(){
+    private void renderFloor() {
         glPushMatrix();
         glTranslatef(0f, 0f, 0f);
         glScalef(10f, 10f, 10f);
-            glColor3f(1f, 1f, 1f);
-            glEnable(GL_TEXTURE);
-            floor.bind();
-            glCallList(floorDL);
-            glDisable(GL_TEXTURE);
+        glColor3f(1f, 1f, 1f);
+        glEnable(GL_TEXTURE);
+        floor.bind();
+        glCallList(floorDL);
+        glDisable(GL_TEXTURE);
         glPopMatrix();
         glBegin(GL_LINES);
         glColor3f(0f, 0f, 0f);
