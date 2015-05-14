@@ -49,6 +49,7 @@ public class Scene {
 
     Mesh rock;
     Mesh chest;
+    Mesh ghost;
 
     static Maze maze;
 
@@ -70,23 +71,17 @@ public class Scene {
         maze = new Maze(10, 10);
         maze.generate();
         maze.display();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        Camera.setPos(new Vector3f(maze.end[1] * 10 + 5, 3.373f, maze.end[0] * 10 + 5));
-        int dir = maze.startCell.findFirstHole();
-        System.out.println(dir);
 
-        dir = Maze.NORTH;
-        if(dir == Maze.NORTH)
+        Camera.setPos(new Vector3f(maze.start[1] * 10 + 5, 3.373f, maze.start[0] * 10 + 5));
+        int dir = maze.startCell.findFirstHole();
+
+        if (dir == Maze.NORTH)
             Camera.setRotation(new Vector3f(0, 0, 0));
-        else if(dir == Maze.EAST)
+        else if (dir == Maze.EAST)
             Camera.setRotation(new Vector3f(0, 90, 0));
-        else if(dir == Maze.WEST)
+        else if (dir == Maze.WEST)
             Camera.setRotation(new Vector3f(0, -90, 0));
-        else if(dir == Maze.SOUTH)
+        else if (dir == Maze.SOUTH)
             Camera.setRotation(new Vector3f(0, 180, 0));
 
 
@@ -181,6 +176,9 @@ public class Scene {
             chest = new Mesh("models/", "treasure_chest.obj");
             chest.loadModel();
 
+            ghost = new Mesh("models/", "Creature.obj");
+            ghost.loadModel();
+
             wall = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon_walls_1.jpg"));
             floor = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon__floor.jpg"));
 
@@ -209,10 +207,10 @@ public class Scene {
             posTres[0] += 0.1;
         if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT))
             posTres[0] -= 0.1;
-        if(Keyboard.isKeyDown(Keyboard.KEY_RETURN))
+        if (Keyboard.isKeyDown(Keyboard.KEY_RETURN))
             posTres[1] += 0.1;
-        if(Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
-            posTres[1] -=0.1;
+        if (Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+            posTres[1] -= 0.1;
 
         posTres[0] = x;
         posTres[2] = z;
@@ -272,6 +270,7 @@ public class Scene {
         renderFloor();
         renderWalls();
         renderChest();
+        //renderGhost();
 
         // map of maze
         glDisable(GL_LIGHTING);
@@ -315,51 +314,76 @@ public class Scene {
             }
         }
 
+        Cell currCell = maze.getCurrent(Camera.getPos(), scale);
+        int x = currCell.col;
+        int y = currCell.row;
+
+        Cell endCell = maze.maxCell;
+        int endX = endCell.col;
+        int endY = endCell.row;
+
+        glBegin(GL_QUADS);
+        glColor3f(1f, 0f, 0f);
+        // Your position
+        glVertex3f(.045f + lineSize * x, .035f - lineSize * y, -0.1f);
+        glVertex3f(.045f + lineSize * x, .035f - lineSize * (y + 1), -0.1f);
+        glVertex3f(.045f + lineSize * (x + 1), .035f - lineSize * (y + 1), -0.1f);
+        glVertex3f(.045f + lineSize * (x + 1), .035f - lineSize * y, -0.1f);
+
+        //Chest Position
+        glColor3f(1f, 1f, 0f);
+        glVertex3f(.045f + lineSize * endX, .035f - lineSize * endY, -0.1f);
+        glVertex3f(.045f + lineSize * endX, .035f - lineSize * (endY + 1), -0.1f);
+        glVertex3f(.045f + lineSize * (endX + 1), .035f - lineSize * (endY + 1), -0.1f);
+        glVertex3f(.045f + lineSize * (endX + 1), .035f - lineSize * endY, -0.1f);
+
+        glEnd();
+
         glPopMatrix();
         glEnable(GL_LIGHTING);
 
     }
 
-    private void loadTile(){
+    private void loadTile() {
         tileDL = glGenLists(1);
         glNewList(tileDL, GL_COMPILE);
-            glBegin(GL_QUADS);
-            glTexCoord2f(0f, 1f);
-            glVertex3f(0.0f, 0.0f, 1.0f); // Bottom Left Of The Quad (Back)
-            glTexCoord2f(1f, 1f);
-            glVertex3f(1.0f, 0.0f, 1.0f); // Bottom Right Of The Quad (Back)
-            glTexCoord2f(1f, 0f);
-            glVertex3f(1.0f, 0.0f, 0.0f); // Top Right Of The Quad (Back)
-            glTexCoord2f(0f, 0f);
-            glVertex3f(0.0f, 0.0f, 0.0f); // Top Left Of The Quad (Back)
-            glEnd();
+        glBegin(GL_QUADS);
+        glTexCoord2f(0f, 1f);
+        glVertex3f(0.0f, 0.0f, 1.0f); // Bottom Left Of The Quad (Back)
+        glTexCoord2f(1f, 1f);
+        glVertex3f(1.0f, 0.0f, 1.0f); // Bottom Right Of The Quad (Back)
+        glTexCoord2f(1f, 0f);
+        glVertex3f(1.0f, 0.0f, 0.0f); // Top Right Of The Quad (Back)
+        glTexCoord2f(0f, 0f);
+        glVertex3f(0.0f, 0.0f, 0.0f); // Top Left Of The Quad (Back)
+        glEnd();
         glEndList();
     }
 
 
-    private void loadFloor(){
+    private void loadFloor() {
         floorDL = glGenLists(1);
         glNewList(floorDL, GL_COMPILE);
-            for(int i = 0; i < maze.rows; i++){
-                for(int j = 0; j < maze.cols; j++){
-                    glPushMatrix();
-                        glTranslatef(i, 0, j);
-                        glCallList(tileDL);
-                    glPopMatrix();
-                }
+        for (int i = 0; i < maze.rows; i++) {
+            for (int j = 0; j < maze.cols; j++) {
+                glPushMatrix();
+                glTranslatef(i, 0, j);
+                glCallList(tileDL);
+                glPopMatrix();
             }
+        }
         glEndList();
     }
 
-    private void renderFloor(){
+    private void renderFloor() {
         glPushMatrix();
         glTranslatef(0f, 0f, 0f);
         glScalef(scale, scale, scale);
-            glColor3f(1f, 1f, 1f);
-            glEnable(GL_TEXTURE);
-            floor.bind();
-            glCallList(floorDL);
-            glDisable(GL_TEXTURE);
+        glColor3f(1f, 1f, 1f);
+        glEnable(GL_TEXTURE);
+        floor.bind();
+        glCallList(floorDL);
+        glDisable(GL_TEXTURE);
         glPopMatrix();
         /*
         glBegin(GL_LINES);
@@ -371,62 +395,62 @@ public class Scene {
 
     }
 
-    private void loadWalls(){
+    private void loadWalls() {
         float angle = -90f;
         wallDL = glGenLists(1);
         glNewList(wallDL, GL_COMPILE);
-            for(int i = 0; i < maze.cols; i++){
-                Cell cur = maze.grid[0][i];
-                if(cur.walls[0]) {
-                    glPushMatrix();
-                        glTranslatef(i, 0, 0);
-                        glRotatef(angle, 1, 0, 0);
+        for (int i = 0; i < maze.cols; i++) {
+            Cell cur = maze.grid[0][i];
+            if (cur.walls[0]) {
+                glPushMatrix();
+                glTranslatef(i, 0, 0);
+                glRotatef(angle, 1, 0, 0);
+                glCallList(tileDL);
+                glPopMatrix();
+            }
+        }
+        for (int i = 0; i < maze.rows; i++) {
+            for (int j = 0; j < maze.cols; j++) {
+                Cell cur = maze.grid[i][j];
+                if (j == 0) {
+                    if (cur.walls[2]) {
+                        glPushMatrix();
+                        glTranslatef(0f, 0f, i);
+                        glRotatef(-angle, 0, 0, 1);
                         glCallList(tileDL);
+                        glPopMatrix();
+
+                    }
+                }
+
+                if (cur.walls[3]) {
+                    glPushMatrix();
+                    glTranslatef(j, 0, i + 1);
+                    glRotatef(angle, 1, 0, 0);
+                    glCallList(tileDL);
+                    glPopMatrix();
+                }
+                if (cur.walls[1]) {
+                    glPushMatrix();
+                    glTranslatef(j + 1, 0, i);
+                    glRotatef(-angle, 0, 0, 1);
+                    glCallList(tileDL);
                     glPopMatrix();
                 }
             }
-            for(int i = 0; i < maze.rows; i++){
-                for(int j = 0; j < maze.cols; j++){
-                    Cell cur = maze.grid[i][j];
-                    if(j == 0){
-                        if(cur.walls[2]) {
-                            glPushMatrix();
-                                glTranslatef(0f, 0f, i);
-                                glRotatef(-angle, 0, 0, 1);
-                                glCallList(tileDL);
-                            glPopMatrix();
-
-                        }
-                    }
-
-                    if(cur.walls[3]) {
-                        glPushMatrix();
-                            glTranslatef(j, 0, i+1);
-                            glRotatef(angle, 1, 0, 0);
-                            glCallList(tileDL);
-                        glPopMatrix();
-                    }
-                    if(cur.walls[1]) {
-                        glPushMatrix();
-                            glTranslatef(j+1, 0, i);
-                            glRotatef(-angle, 0, 0, 1);
-                            glCallList(tileDL);
-                        glPopMatrix();
-                    }
-                }
-            }
+        }
         glEndList();
     }
 
-    private void renderWalls(){
+    private void renderWalls() {
         glPushMatrix();
-            glTranslatef(0f, 0f, 0f);
-            glScalef(scale, scale, scale);
-            glColor3f(1f, 1f, 1f);
-            glEnable(GL_TEXTURE);
-            wall.bind();
-            glCallList(wallDL);
-            glDisable(GL_TEXTURE);
+        glTranslatef(0f, 0f, 0f);
+        glScalef(scale, scale, scale);
+        glColor3f(1f, 1f, 1f);
+        glEnable(GL_TEXTURE);
+        wall.bind();
+        glCallList(wallDL);
+        glDisable(GL_TEXTURE);
         glPopMatrix();
     }
 
@@ -441,28 +465,36 @@ public class Scene {
         int dir = maze.maxCell.findFirstHole();
         glPushMatrix();
         glTranslatef(maze.end[1] * 10 + 5, 0f, maze.end[0] * 10 + 5);
-        if(dir == Maze.NORTH)
+        if (dir == Maze.NORTH)
             glRotatef(180f, 0, 1, 0);
-        else if(dir == Maze.EAST)
+        else if (dir == Maze.EAST)
             glRotatef(90f, 0, 1, 0);
-        else if(dir == Maze.WEST)
+        else if (dir == Maze.WEST)
             glRotatef(-90f, 0, 1, 0);
         glScalef(2f, 2f, 2f);
         chest.renderMesh();
         glPopMatrix();
         float x = maze.end[1] * 10 + 5;
         float z = maze.end[0] * 10 + 5;
-        if(dir == Maze.NORTH)
+
+        if (dir == Maze.NORTH)
             z += 5;
-        else if(dir == Maze.EAST)
+        else if (dir == Maze.EAST)
             x += 5;
-        else if(dir == Maze.WEST)
-           x -= 5;
-        else if(dir == Maze.SOUTH)
+        else if (dir == Maze.WEST)
+            x -= 5;
+        else if (dir == Maze.SOUTH)
             z -= 5;
 
-
         lightsChest(x, z);
+    }
+
+    private void renderGhost() {
+        glPushMatrix();
+        glTranslatef(0f, 0f, 10f);
+        //glScalef(.1f, .1f, .1f);
+        ghost.renderMesh();
+        glPopMatrix();
     }
 
 
