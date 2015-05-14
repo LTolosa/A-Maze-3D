@@ -188,45 +188,39 @@ public class Scene {
         //glDisable(GL_LIGHTING);
         glPushMatrix();
         glLoadIdentity();
-        glBegin(GL_QUADS);
-        glColor3f(1f, 1f, 1f);
-        glVertex3f(.03f, .015f, -0.1f);
-        glVertex3f(.05f, .015f, -0.1f);
-        glVertex3f(.05f, .035f, -0.1f);
-        glVertex3f(.03f, .035f, -0.1f);
-        glEnd();
+
         float lineSize = .002f;
 
-        glColor3f(0f, 0f, 0f);
+        glColor3f(1f, 1f, 1f);
 
         for (int i = 0; i < maze.rows; i++) {
             for (int j = 0; j < maze.cols; j++) {
                 Cell curr = maze.grid[i][j];
                 if (curr.walls[0]) {
                     glBegin(GL_LINES);
-                    glVertex3f(.03f + lineSize * j, .005f - lineSize * i, -0.1201f);
-                    glVertex3f(.03f + lineSize * (j + 1), .005f - lineSize * i, -0.1201f);
+                    glVertex3f(.03f + lineSize * j, .035f - lineSize * i, -0.1f);
+                    glVertex3f(.03f + lineSize * (j + 1), .035f - lineSize * i, -0.1f);
                     glEnd();
                 }
 
                 if (curr.walls[3]) {
                     glBegin(GL_LINES);
-                    glVertex3f(.03f + lineSize * j, .005f - lineSize * (i + 1), -0.1201f);
-                    glVertex3f(.03f + lineSize * (j + 1), .005f - lineSize * (i + 1), -0.1201f);
+                    glVertex3f(.03f + lineSize * j, .035f - lineSize * (i + 1), -0.1f);
+                    glVertex3f(.03f + lineSize * (j + 1), .035f - lineSize * (i + 1), -0.1f);
                     glEnd();
                 }
 
                 if (curr.walls[2]) {
                     glBegin(GL_LINES);
-                    glVertex3f(.03f + lineSize * j, .005f - lineSize * i, -0.1201f);
-                    glVertex3f(.03f + lineSize * j, .005f - lineSize * (i + 1), -0.1201f);
+                    glVertex3f(.03f + lineSize * j, .035f - lineSize * i, -0.1f);
+                    glVertex3f(.03f + lineSize * j, .035f - lineSize * (i + 1), -0.1f);
                     glEnd();
                 }
 
                 if (curr.walls[1]) {
                     glBegin(GL_LINES);
-                    glVertex3f(.03f + lineSize * (j + 1), .005f - lineSize * i, -0.1201f);
-                    glVertex3f(.03f + lineSize * (j + 1), .005f - lineSize * (i + 1), -0.1201f);
+                    glVertex3f(.03f + lineSize * (j + 1), .035f - lineSize * i, -0.1f);
+                    glVertex3f(.03f + lineSize * (j + 1), .035f - lineSize * (i + 1), -0.1f);
                     glEnd();
                 }
             }
