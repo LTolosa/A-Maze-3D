@@ -71,9 +71,15 @@ public class Maze {
         this.setStart(currentCell.row, currentCell.col);
 
         while (visitedCells < totalCells) {
+            System.out.println("First while loop!" + visitedCells);
             Cell[] neighbors = getNeighbors(currentCell);
             boolean isEmpty = true;
-            for (Cell n : neighbors) isEmpty = n != null && isEmpty;
+            for (Cell n : neighbors){
+                if(n != null){
+                    isEmpty = false;
+                    break;
+                }
+            }
             if (!isEmpty) {
                 Cell chosenCell = null;
                 int dir = 0;
@@ -87,7 +93,7 @@ public class Maze {
             }
         }
 
-        Cell last = cells.peek();
+        Cell last = currentCell;
         this.setEnd(last.row, last.col);
     }
 
@@ -131,6 +137,18 @@ public class Maze {
             cur.walls[SOUTH] = false;
             nxt.walls[NORTH] = true;
         }
+    }
+
+    public int[] getStart(){
+        return this.start;
+    }
+
+    public int[] getEnd(){
+        return this.end;
+    }
+
+    public Cell[][] getGrid(){
+        return grid;
     }
 }
 
