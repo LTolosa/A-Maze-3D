@@ -2,12 +2,13 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.glu.GLU;
-import org.lwjgl.util.vector.Vector3f;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.util.ResourceLoader;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -31,16 +32,18 @@ public class FogCube {
     //Fog
     int fogMode[] = {GL_EXP, GL_EXP2, GL_LINEAR};
     int fogfilter = 0;  // Change this to see the 3 different types of fog effects!
-    float fogColor[] = {0.5f, 0.5f, 0.5f, 1.0f};
+    float fogColor[] = {0.8f, 0.8f, 0.8f, 1.0f};
 
     Mesh rock;
+
+    Texture wall;
+    Texture floor;
 
     public void run() {
         createWindow();
         getDelta(); // Initialise delta timer
         initGL();
 
-        System.out.println("Finished loading");
         while (!closeRequested) {
             int delta = getDelta();
             pollInput(delta);
@@ -68,7 +71,7 @@ public class FogCube {
 
         glShadeModel(GL_SMOOTH); // Enables Smooth Shading
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);                   // Set The Blending Function For Translucency
-        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
         glClearDepth(1.0f); // Depth Buffer Setup
         glEnable(GL_DEPTH_TEST); // Enables Depth Testing
 
@@ -87,8 +90,8 @@ public class FogCube {
         glFog(GL_FOG_COLOR, temp.asFloatBuffer());                // Set Fog Color
         glFogf(GL_FOG_DENSITY, 0.35f);                            // How Dense Will The Fog Be
         glHint(GL_FOG_HINT, GL_DONT_CARE);                   // Fog Hint Value
-        glFogf(GL_FOG_START, 1.0f);                               // Fog Start Depth
-        glFogf(GL_FOG_END, 5.0f);                                 // Fog End Depth
+        //glFogf(GL_FOG_START, 1.0f);                               // Fog Start Depth
+        //glFogf(GL_FOG_END, 5.0f);                                 // Fog End Depth
         glEnable(GL_FOG);                                         // Enables GL_FOG
         Camera.create();
 
@@ -108,6 +111,11 @@ public class FogCube {
         try {
             rock = new Mesh("models/", "rock.obj");
             rock.loadModel();
+
+            wall = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon_walls_1.jpg"));
+            floor= TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon__floor.jpg"));
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -117,6 +125,18 @@ public class FogCube {
      * Places the lights in the scene
      */
     private void lights(){
+        if(Keyboard.isKeyDown(Keyboard.KEY_UP))
+            position[2] += 0.1;
+        if(Keyboard.isKeyDown(Keyboard.KEY_DOWN))
+            position[2] -= 0.1;
+        if(Keyboard.isKeyDown(Keyboard.KEY_LEFT))
+            position[0] += 0.1;
+        if(Keyboard.isKeyDown(Keyboard.KEY_RIGHT))
+            position[0] -= 0.1;
+
+        posBuf = BufferUtils.createFloatBuffer(position.length);
+        posBuf.put(position);
+        posBuf.flip();
         glPushMatrix();
         glLoadIdentity();
         Camera.apply();
@@ -134,6 +154,19 @@ public class FogCube {
         Camera.apply();
 
         renderRock();
+        renderFloor();
+
+        glPushMatrix();
+            glTranslatef(0f, 0f, 10f);
+            glScalef(5f, 5f, 5f);
+            glBegin(GL_QUADS);
+                glColor3f(0f, 0f, 1f);
+                glVertex3f(1.0f, -1.0f, 0.0f); // Bottom Left Of The Quad (Back)
+                glVertex3f(-1.0f, -1.0f, .0f); // Bottom Right Of The Quad (Back)
+                glVertex3f(-1.0f, 1.0f, 0.0f); // Top Right Of The Quad (Back)
+                glVertex3f(1.0f, 1.0f, 0.0f); // Top Left Of The Quad (Back)
+            glEnd();
+        glPopMatrix();
 
         /*
         glBegin(GL_QUADS); // Start Drawing The Cube
@@ -178,8 +211,31 @@ public class FogCube {
 
     private void renderRock(){
         glPushMatrix();
+            //glScalef(10f, 10f, 10f);
             rock.renderMesh();
         glPopMatrix();
+    }
+
+    private void renderFloor(){
+        glPushMatrix();
+            glTranslatef(0f, 0f, -1f);
+            glRotatef(90f, 90f, 0f, 0f);
+            glEnable(GL_TEXTURE);
+            glColor3f(1f, 1f, 1f);
+            wall.bind();
+            glBegin(GL_QUADS);
+                glTexCoord2f(0f, 1f);
+                glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Back)
+                glTexCoord2f(1f, 1f);
+                glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Back)
+                glTexCoord2f(1f, 0f);
+                glVertex3f(-1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Back)
+                glTexCoord2f(0f, 0f);
+                glVertex3f(1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Back)
+            glEnd();
+            glDisable(GL_TEXTURE);
+        glPopMatrix();
+
     }
 
     /**

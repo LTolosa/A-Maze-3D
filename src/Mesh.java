@@ -1,12 +1,9 @@
 import static org.lwjgl.opengl.GL11.*;
-
 import java.io.*;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.lwjgl.BufferUtils;
-import org.lwjgl.util.glu.Sphere;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.newdawn.slick.opengl.Texture;
@@ -206,7 +203,7 @@ public class Mesh {
         String ext = texName.split("\\.")[1].toUpperCase();
 
         try {
-            texture = TextureLoader.getTexture("ext", ResourceLoader.getResourceAsStream(texName));
+            texture = TextureLoader.getTexture(ext, ResourceLoader.getResourceAsStream(texName));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -248,10 +245,9 @@ public class Mesh {
         glMaterial(GL_FRONT, GL_SHININESS, shininess);
         glTranslatef(pos.x, pos.y, pos.z);
         glEnable(GL_TEXTURE_2D);
+        glColor3f(1f, 1f, 1f);
         texture.bind();
         glCallList(modelList);
         glDisable(GL_TEXTURE_2D);
-
     }
-
 }
