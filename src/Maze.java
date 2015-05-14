@@ -74,10 +74,7 @@ public class Maze {
             random = new Random();
             Cell[] neighbors = getNeighbors(currentCell);
             int count = 0;
-            for (Cell n : neighbors){
-                if(n != null)
-                    count++;
-            }
+            for (Cell n : neighbors) count = n != null ? count + 1 : count;
             boolean isEmpty = (count == 0);
 
             if (!isEmpty) {
@@ -85,12 +82,10 @@ public class Maze {
                 int dir = 0;
                 while (chosenCell == null) chosenCell = neighbors[dir = random.nextInt(neighbors.length)];
                 this.breakWall(currentCell, chosenCell, dir);
-                System.out.println(visitedCells + " dir: " + dir + " [" + currentCell.row + ", " + currentCell.col + "] " + Arrays.toString(currentCell.walls));
                 cells.push(currentCell);
                 currentCell = chosenCell;
                 visitedCells++;
             } else {
-                System.out.println(visitedCells + " dir:  " + " [" + currentCell.row + ", " + currentCell.col + "] " + Arrays.toString(currentCell.walls));
                 currentCell = cells.pop();
             }
         }
@@ -123,33 +118,29 @@ public class Maze {
 
     public void breakWall(Cell cur, Cell nxt, int dir) {
         if (dir == NORTH) {
-            //cur.solution[NORTH] = true;
             cur.walls[NORTH] = false;
             nxt.walls[SOUTH] = false;
         } else if (dir == EAST) {
-            //cur.solution[EAST] = true;
             cur.walls[EAST] = false;
             nxt.walls[WEST] = false;
         } else if (dir == WEST) {
-            //cur.solution[WEST] = true;
             cur.walls[WEST] = false;
             nxt.walls[EAST] = false;
         } else if (dir == SOUTH) {
-            //cur.solution[SOUTH] = true;
             cur.walls[SOUTH] = false;
-            nxt.walls[NORTH] = true;
+            nxt.walls[NORTH] = false;
         }
     }
 
     public void display(){
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < this.cols; i++){
             Cell cur = this.grid[0][i];
             if(cur.walls[0])
                 System.out.print(" _");
         }
         System.out.println();
-        for(int i = 0; i < 10; i++){
-            for(int j = 0; j < 10; j++){
+        for(int i = 0; i < this.rows; i++){
+            for(int j = 0; j < this.cols; j++){
                 Cell cur = this.grid[i][j];
                 if(j == 0){
                     if(cur.walls[2])

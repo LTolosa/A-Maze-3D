@@ -6,10 +6,8 @@ public class Cell {
      * condition's status in a cardinal direction. The
      * order is N, E, W, S.
      */
-
     public boolean[] walls     = {true, true, true, true};
     public boolean[] borders    = {false, false, false, false};
-    public boolean[] solution  = {false, false, false, false};
 
     public int row;
     public int col;

@@ -53,18 +53,18 @@ public class FogCube {
         getDelta(); // Initialise delta timer
         initGL();
 
-        maze = new Maze(10, 10);
+        maze = new Maze(20, 20);
         maze.generate();
         Cell[][] grid = maze.getGrid();
 
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 20; i++){
             Cell cur = grid[0][i];
             if(cur.walls[0])
                 System.out.print(" _");
         }
         System.out.println();
-        for(int i = 0; i < 10; i++){
-            for(int j = 0; j < 10; j++){
+        for(int i = 0; i < 20; i++){
+            for(int j = 0; j < 20; j++){
                 Cell cur = grid[i][j];
                 if(j == 0){
                     if(cur.walls[2])
