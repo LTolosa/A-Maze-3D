@@ -88,9 +88,11 @@ public class Camera {
             tmp.x += Math.sin(Math.toRadians(rotation.y)) * speed;
             tmp.z -= Math.cos(Math.toRadians(rotation.y)) * speed;
         }
-
-        Cell cell = Scene.maze.getCurrent(tmp, Scene.scale);
+        tmp.x = Math.max(0.5f, Math.min((Scene.maze.cols)*Scene.scale-0.5f, tmp.x));
+        tmp.z = Math.max(0.5f, Math.min((Scene.maze.rows)*Scene.scale-0.5f, tmp.z));
+        Cell cell = Scene.maze.getCurrent(pos, Scene.scale);
         //System.out.println("Current: " + cell.row + " " + cell.col);
+        cell.collisionCheck(tmp, pos, Scene.scale);
 
 
         pos = tmp;

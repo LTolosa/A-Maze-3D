@@ -34,22 +34,14 @@ public class Cell {
     public void collisionCheck(Vector3f pos, Vector3f prev, float scale){
         float centerX = col*scale + scale/2f;
         float centerZ = row*scale + scale/2f;
-
-        if(walls[0] && pos.z < (centerZ - scale/2f)){
-            pos.z = prev.z;
-        }
-
-        if(walls[1] && pos.x > (centerX + scale/2f)){
-            pos.x = prev.x;
-        }
-
-        if(walls[2] && pos.x < (centerX + scale/2f)){
-            pos.x = prev.x;
-        }
-
-        if(walls[3] && pos.z > (centerZ + scale/2f)) {
-            pos.z = prev.z;
-        }
+        if(walls[0])
+            pos.z = Math.max(centerZ - scale/2f + 0.5f, pos.z);
+        if(walls[1])
+            pos.x = Math.min(centerX + scale/2f - 0.5f, pos.x);
+        if(walls[2])
+            pos.x = Math.max(centerX - scale/2f + 0.5f, pos.x);
+        if(walls[3])
+            pos.z = Math.min(centerZ + scale/2f - 0.5f, pos.z);
     }
 
 }

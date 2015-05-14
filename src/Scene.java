@@ -29,7 +29,7 @@ public class Scene {
 
     //Lights
     float[] ambient = {0.0f, 0.0f, 0.0f, 1.0f};
-    float[] position = {0.0f, 0.2f, -5f, 1.0f};
+    float[] position = {0.0f, 0.3f, -5f, 1.0f};
     float[] diffuse = {0.9f, 0.8f, 0.6f, 1.0f};
     float[] specular = {0.5f, 1.0f, 1.0f, 1.0f};
     FloatBuffer ambBuf, posBuf, mDiffuseBuf, mSpecBuf;
@@ -114,7 +114,7 @@ public class Scene {
         glViewport(0, 0, width, height); // Reset The Current Viewport
         glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
         glLoadIdentity(); // Reset The Projection Matrix
-        GLU.gluPerspective(45.0f, ((float) width / (float) height), 0.1f, 1000.0f); // Calculate The Aspect Ratio Of The Window
+        GLU.gluPerspective(45.0f, ((float) width / (float) height), 0.0999999f, 500.0f); // Calculate The Aspect Ratio Of The Window
         glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
         glLoadIdentity(); // Reset The Modelview Matrix
 
@@ -274,7 +274,7 @@ public class Scene {
         renderChest();
 
         // map of maze
-        //glDisable(GL_LIGHTING);
+        glDisable(GL_LIGHTING);
         glPushMatrix();
         glLoadIdentity();
 
@@ -287,36 +287,36 @@ public class Scene {
                 Cell curr = maze.grid[i][j];
                 if (curr.walls[0]) {
                     glBegin(GL_LINES);
-                    glVertex3f(.03f + lineSize * j, .035f - lineSize * i, -0.1f);
-                    glVertex3f(.03f + lineSize * (j + 1), .035f - lineSize * i, -0.1f);
+                    glVertex3f(.045f + lineSize * j, .035f - lineSize * i, -0.1f);
+                    glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * i, -0.1f);
                     glEnd();
                 }
 
                 if (curr.walls[3]) {
                     glBegin(GL_LINES);
-                    glVertex3f(.03f + lineSize * j, .035f - lineSize * (i + 1), -0.1f);
-                    glVertex3f(.03f + lineSize * (j + 1), .035f - lineSize * (i + 1), -0.1f);
+                    glVertex3f(.045f + lineSize * j, .035f - lineSize * (i + 1), -0.1f);
+                    glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * (i + 1), -0.1f);
                     glEnd();
                 }
 
                 if (curr.walls[2]) {
                     glBegin(GL_LINES);
-                    glVertex3f(.03f + lineSize * j, .035f - lineSize * i, -0.1f);
-                    glVertex3f(.03f + lineSize * j, .035f - lineSize * (i + 1), -0.1f);
+                    glVertex3f(.045f + lineSize * j, .035f - lineSize * i, -0.1f);
+                    glVertex3f(.045f + lineSize * j, .035f - lineSize * (i + 1), -0.1f);
                     glEnd();
                 }
 
                 if (curr.walls[1]) {
                     glBegin(GL_LINES);
-                    glVertex3f(.03f + lineSize * (j + 1), .035f - lineSize * i, -0.1f);
-                    glVertex3f(.03f + lineSize * (j + 1), .035f - lineSize * (i + 1), -0.1f);
+                    glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * i, -0.1f);
+                    glVertex3f(.045f + lineSize * (j + 1), .035f - lineSize * (i + 1), -0.1f);
                     glEnd();
                 }
             }
         }
 
         glPopMatrix();
-        //glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHTING);
 
     }
 
