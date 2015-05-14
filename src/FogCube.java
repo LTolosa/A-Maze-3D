@@ -4,7 +4,6 @@ import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.glu.GLU;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
@@ -14,6 +13,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class FogCube {
 
@@ -35,6 +36,7 @@ public class FogCube {
     float fogColor[] = {0.8f, 0.8f, 0.8f, 1.0f};
 
     Mesh rock;
+    Mesh chest;
 
     Texture wall;
     Texture floor;
@@ -92,7 +94,7 @@ public class FogCube {
         glHint(GL_FOG_HINT, GL_DONT_CARE);                   // Fog Hint Value
         //glFogf(GL_FOG_START, 1.0f);                               // Fog Start Depth
         //glFogf(GL_FOG_END, 5.0f);                                 // Fog End Depth
-        glEnable(GL_FOG);                                         // Enables GL_FOG
+        //glEnable(GL_FOG);                                         // Enables GL_FOG
         Camera.create();
 
         ambBuf = BufferUtils.createFloatBuffer(ambient.length);
@@ -112,8 +114,11 @@ public class FogCube {
             rock = new Mesh("models/", "rock.obj");
             rock.loadModel();
 
+            chest = new Mesh("models/", "treasure_chest.obj");
+            chest.loadModel();
+
             wall = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon_walls_1.jpg"));
-            floor= TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon__floor.jpg"));
+            floor = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon__floor.jpg"));
 
 
         } catch (IOException e) {
@@ -124,14 +129,14 @@ public class FogCube {
     /**
      * Places the lights in the scene
      */
-    private void lights(){
-        if(Keyboard.isKeyDown(Keyboard.KEY_UP))
+    private void lights() {
+        if (Keyboard.isKeyDown(Keyboard.KEY_UP))
             position[2] += 0.1;
-        if(Keyboard.isKeyDown(Keyboard.KEY_DOWN))
+        if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
             position[2] -= 0.1;
-        if(Keyboard.isKeyDown(Keyboard.KEY_LEFT))
+        if (Keyboard.isKeyDown(Keyboard.KEY_LEFT))
             position[0] += 0.1;
-        if(Keyboard.isKeyDown(Keyboard.KEY_RIGHT))
+        if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT))
             position[0] -= 0.1;
 
         posBuf = BufferUtils.createFloatBuffer(position.length);
@@ -155,17 +160,18 @@ public class FogCube {
 
         renderRock();
         renderFloor();
+        renderChest();
 
         glPushMatrix();
-            glTranslatef(0f, 0f, 10f);
-            glScalef(5f, 5f, 5f);
-            glBegin(GL_QUADS);
-                glColor3f(0f, 0f, 1f);
-                glVertex3f(1.0f, -1.0f, 0.0f); // Bottom Left Of The Quad (Back)
-                glVertex3f(-1.0f, -1.0f, .0f); // Bottom Right Of The Quad (Back)
-                glVertex3f(-1.0f, 1.0f, 0.0f); // Top Right Of The Quad (Back)
-                glVertex3f(1.0f, 1.0f, 0.0f); // Top Left Of The Quad (Back)
-            glEnd();
+        glTranslatef(0f, 0f, 10f);
+        glScalef(5f, 5f, 5f);
+        glBegin(GL_QUADS);
+        glColor3f(0f, 0f, 1f);
+        glVertex3f(1.0f, -1.0f, 0.0f); // Bottom Left Of The Quad (Back)
+        glVertex3f(-1.0f, -1.0f, .0f); // Bottom Right Of The Quad (Back)
+        glVertex3f(-1.0f, 1.0f, 0.0f); // Top Right Of The Quad (Back)
+        glVertex3f(1.0f, 1.0f, 0.0f); // Top Left Of The Quad (Back)
+        glEnd();
         glPopMatrix();
 
         /*
@@ -209,31 +215,38 @@ public class FogCube {
         */
     }
 
-    private void renderRock(){
+    private void renderRock() {
         glPushMatrix();
-            //glScalef(10f, 10f, 10f);
-            rock.renderMesh();
+        //glScalef(10f, 10f, 10f);
+        rock.renderMesh();
         glPopMatrix();
     }
 
-    private void renderFloor(){
+    private void renderChest() {
         glPushMatrix();
-            glTranslatef(0f, 0f, -1f);
-            glRotatef(90f, 90f, 0f, 0f);
-            glEnable(GL_TEXTURE);
-            glColor3f(1f, 1f, 1f);
-            wall.bind();
-            glBegin(GL_QUADS);
-                glTexCoord2f(0f, 1f);
-                glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Back)
-                glTexCoord2f(1f, 1f);
-                glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Back)
-                glTexCoord2f(1f, 0f);
-                glVertex3f(-1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Back)
-                glTexCoord2f(0f, 0f);
-                glVertex3f(1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Back)
-            glEnd();
-            glDisable(GL_TEXTURE);
+        glTranslatef(0f, 0f, 5f);
+        chest.renderMesh();
+        glPopMatrix();
+    }
+
+    private void renderFloor() {
+        glPushMatrix();
+        glTranslatef(0f, 0f, -1f);
+        glRotatef(90f, 90f, 0f, 0f);
+        glEnable(GL_TEXTURE);
+        glColor3f(1f, 1f, 1f);
+        wall.bind();
+        glBegin(GL_QUADS);
+        glTexCoord2f(0f, 1f);
+        glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Back)
+        glTexCoord2f(1f, 1f);
+        glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Back)
+        glTexCoord2f(1f, 0f);
+        glVertex3f(-1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Back)
+        glTexCoord2f(0f, 0f);
+        glVertex3f(1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Back)
+        glEnd();
+        glDisable(GL_TEXTURE);
         glPopMatrix();
 
     }
