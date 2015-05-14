@@ -2,9 +2,12 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.util.glu.GLU;
+import org.newdawn.slick.openal.Audio;
+import org.newdawn.slick.openal.AudioLoader;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -41,6 +44,8 @@ public class FogCube {
     Texture wall;
     Texture floor;
 
+    Audio wavEffect;
+
     public void run() {
         createWindow();
         getDelta(); // Initialise delta timer
@@ -51,7 +56,6 @@ public class FogCube {
             pollInput(delta);
             renderGL(delta);
             lights();
-
             Display.update();
         }
 
@@ -120,6 +124,12 @@ public class FogCube {
             wall = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon_walls_1.jpg"));
             floor = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon__floor.jpg"));
 
+            wavEffect = AudioLoader.getAudio("WAV", ResourceLoader.getResourceAsStream("sounds/spooky_ambience.wav"));
+            wavEffect.playAsSoundEffect(1.0f, 1.0f, false);
+
+            // polling is required to allow streaming to get a chance to
+            // queue buffers
+            //SoundStore.get().poll(0);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -263,6 +273,7 @@ public class FogCube {
                     closeRequested = true;
             }
             if (Display.isCloseRequested()) {
+                AL.destroy();
                 closeRequested = true;
             }
         }
