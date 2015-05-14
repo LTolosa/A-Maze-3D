@@ -8,7 +8,6 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.util.glu.GLU;
 import org.newdawn.slick.openal.Audio;
 import org.newdawn.slick.openal.AudioLoader;
-import org.newdawn.slick.openal.SoundStore;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -125,7 +124,7 @@ public class FogCube {
             wall = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon_walls_1.jpg"));
             floor = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon__floor.jpg"));
 
-            wavEffect = AudioLoader.getAudio("WAV", ResourceLoader.getResourceAsStream("spooky_ambience.wav"));
+            wavEffect = AudioLoader.getAudio("WAV", ResourceLoader.getResourceAsStream("sounds/spooky_ambience.wav"));
             wavEffect.playAsSoundEffect(1.0f, 1.0f, false);
 
             // polling is required to allow streaming to get a chance to
