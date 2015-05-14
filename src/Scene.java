@@ -16,13 +16,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.Arrays;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class FogCube {
+public class Scene {
 
-    String windowTitle = "Fog";
+    String windowTitle = "A-Maze-3D";
     public boolean closeRequested = false;
 
     long lastFrameTime; // used to calculate delta
@@ -41,12 +40,16 @@ public class FogCube {
 
     Mesh rock;
     Mesh chest;
+
     Maze maze;
 
     Texture wall;
     Texture floor;
 
     Audio wavEffect;
+    int tileDL;
+    int floorDL;
+    int wallDL;
 
     public void run() {
         createWindow();
@@ -55,38 +58,9 @@ public class FogCube {
 
         maze = new Maze(10, 10);
         maze.generate();
-        Cell[][] grid = maze.grid;
+        loadTile();
+        loadFloor(maze);
 
-        for (int i = 0; i < maze.cols; i++) {
-            Cell cur = grid[0][i];
-            if (cur.walls[0])
-                System.out.print(" _");
-        }
-        System.out.println();
-        for (int i = 0; i < maze.cols; i++) {
-            for (int j = 0; j < maze.rows; j++) {
-                Cell cur = grid[i][j];
-                if (j == 0) {
-                    if (cur.walls[2])
-                        System.out.print("|");
-                    else
-                        System.out.print(" ");
-                }
-
-                if (cur.walls[3])
-                    System.out.print("_");
-                else
-                    System.out.print(" ");
-                if (cur.walls[1])
-                    System.out.print("|");
-                else
-                    System.out.print(" ");
-            }
-            System.out.println();
-        }
-
-        System.out.println("Start: " + Arrays.toString(maze.start));
-        System.out.println("End: " + Arrays.toString(maze.end));
         while (!closeRequested) {
             int delta = getDelta();
             pollInput(delta);
@@ -123,18 +97,18 @@ public class FogCube {
         ByteBuffer temp = ByteBuffer.allocateDirect(16);
         temp.order(ByteOrder.nativeOrder());
 
-        glEnable(GL_LIGHTING);
+        //glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);                                      // Enable Light One
         glEnable(GL_COLOR_MATERIAL);
         glEnable(GL_NORMALIZE);
         glFogi(GL_FOG_MODE, fogMode[fogfilter]);                  // Fog Mode
         temp.asFloatBuffer().put(fogColor).flip();
         glFog(GL_FOG_COLOR, temp.asFloatBuffer());                // Set Fog Color
-        glFogf(GL_FOG_DENSITY, 0.35f);                            // How Dense Will The Fog Be
+        glFogf(GL_FOG_DENSITY, 0.1f);                            // How Dense Will The Fog Be
         glHint(GL_FOG_HINT, GL_DONT_CARE);                   // Fog Hint Value
         //glFogf(GL_FOG_START, 1.0f);                               // Fog Start Depth
         //glFogf(GL_FOG_END, 5.0f);                                 // Fog End Depth
-        //glEnable(GL_FOG);                                         // Enables GL_FOG
+        glEnable(GL_FOG);                                         // Enables GL_FOG
         Camera.create();
 
         ambBuf = BufferUtils.createFloatBuffer(ambient.length);
@@ -149,6 +123,7 @@ public class FogCube {
         mSpecBuf = BufferUtils.createFloatBuffer(specular.length);
         mSpecBuf.put(specular);
         mSpecBuf.flip();
+
 
         try {
             rock = new Mesh("models/", "rock.obj");
@@ -208,20 +183,8 @@ public class FogCube {
         renderFloor();
         renderChest();
 
-        glPushMatrix();
-        glTranslatef(0f, 0f, 10f);
-        glScalef(5f, 5f, 5f);
-        glBegin(GL_QUADS);
-        glColor3f(0f, 0f, 1f);
-        glVertex3f(1.0f, -1.0f, 0.0f); // Bottom Left Of The Quad (Back)
-        glVertex3f(-1.0f, -1.0f, .0f); // Bottom Right Of The Quad (Back)
-        glVertex3f(-1.0f, 1.0f, 0.0f); // Top Right Of The Quad (Back)
-        glVertex3f(1.0f, 1.0f, 0.0f); // Top Left Of The Quad (Back)
-        glEnd();
-        glPopMatrix();
-
         // map of maze
-        glDisable(GL_LIGHTING);
+        //glDisable(GL_LIGHTING);
         glPushMatrix();
         glLoadIdentity();
         glBegin(GL_QUADS);
@@ -231,14 +194,7 @@ public class FogCube {
         glVertex3f(.05f, .035f, -0.1f);
         glVertex3f(.03f, .035f, -0.1f);
         glEnd();
-
         float lineSize = .002f;
-
-        glBegin(GL_LINES);
-        glColor3f(0f, 0f, 0f);
-        glVertex3f(.034f, .0154f, -0.105f);
-        glVertex3f(.036f, .0154f, -0.105f);
-        glEnd();
 
         for (int i = 0; i < maze.rows; i++) {
             for (int j = 0; j < maze.cols; j++) {
@@ -254,7 +210,57 @@ public class FogCube {
         }
 
         glPopMatrix();
-        glEnable(GL_LIGHTING);
+        //glEnable(GL_LIGHTING);
+
+    }
+
+    private void loadTile(){
+        tileDL = glGenLists(1);
+        glNewList(tileDL, GL_COMPILE);
+            glBegin(GL_QUADS);
+            glTexCoord2f(0f, 1f);
+            glVertex3f(0.0f, 0.0f, 1.0f); // Bottom Left Of The Quad (Back)
+            glTexCoord2f(1f, 1f);
+            glVertex3f(1.0f, 0.0f, 1.0f); // Bottom Right Of The Quad (Back)
+            glTexCoord2f(1f, 0f);
+            glVertex3f(1.0f, 0.0f, 0.0f); // Top Right Of The Quad (Back)
+            glTexCoord2f(0f, 0f);
+            glVertex3f(0.0f, 0.0f, 0.0f); // Top Left Of The Quad (Back)
+            glEnd();
+        glEndList();
+    }
+
+
+    private void loadFloor(Maze maze){
+        floorDL = glGenLists(1);
+        glNewList(floorDL, GL_COMPILE);
+            for(int i = 0; i < maze.rows; i++){
+                for(int j = 0; j < maze.cols; j++){
+                    glPushMatrix();
+                        glTranslatef(i, 0, j);
+                        glCallList(tileDL);
+                    glPopMatrix();
+                }
+            }
+        glEndList();
+    }
+
+    private void renderFloor(){
+        glPushMatrix();
+        glTranslatef(0f, 0f, 0f);
+        glScalef(10f, 10f, 10f);
+            glColor3f(1f, 1f, 1f);
+            glEnable(GL_TEXTURE);
+            floor.bind();
+            glCallList(floorDL);
+            glDisable(GL_TEXTURE);
+        glPopMatrix();
+        glBegin(GL_LINES);
+        glColor3f(0f, 0f, 0f);
+        glVertex3f(.034f, .0154f, -0.105f);
+        glVertex3f(.036f, .0154f, -0.105f);
+        glEnd();
+
     }
 
     private void renderRock() {
@@ -269,28 +275,6 @@ public class FogCube {
         glTranslatef(0f, 0f, 5f);
         chest.renderMesh();
         glPopMatrix();
-    }
-
-    private void renderFloor() {
-        glPushMatrix();
-        glTranslatef(0f, 0f, -1f);
-        glRotatef(90f, 90f, 0f, 0f);
-        glEnable(GL_TEXTURE);
-        glColor3f(1f, 1f, 1f);
-        wall.bind();
-        glBegin(GL_QUADS);
-        glTexCoord2f(0f, 1f);
-        glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Back)
-        glTexCoord2f(1f, 1f);
-        glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Back)
-        glTexCoord2f(1f, 0f);
-        glVertex3f(-1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Back)
-        glTexCoord2f(0f, 0f);
-        glVertex3f(1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Back)
-        glEnd();
-        glDisable(GL_TEXTURE);
-        glPopMatrix();
-
     }
 
     /**
@@ -346,7 +330,7 @@ public class FogCube {
     }
 
     public static void main(String[] args) {
-        new FogCube().run();
+        new Scene().run();
     }
 
 
