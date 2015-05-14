@@ -6,21 +6,23 @@ import java.util.*;
 
 public class Maze {
 
-    private static final byte NORTH = 0;
-    private static final byte EAST  = 1;
-    private static final byte WEST  = 2;
-    private static final byte SOUTH = 3;
+    static final byte NORTH = 0;
+    static final byte EAST  = 1;
+    static final byte WEST  = 2;
+    static final byte SOUTH = 3;
 
-    private int[] start = {0, 0};
-    private int[] end = {1, 1};
+    int[] start = {0, 0};
+    int[] end = {1, 1};
 
-    private Cell[][] grid;
+    Cell[][] grid;
 
-    private int rows = 1;
-    private int cols = 1;
+    int rows;
+    int cols;
 
     public Maze() {
-        this.grid = new Cell[1][1];
+        rows = 1;
+        cols = 1;
+        this.grid = new Cell[rows][cols];
         Arrays.fill(this.end, 1);
     }
 
@@ -165,19 +167,6 @@ public class Maze {
         System.out.println("End: " + Arrays.toString(end));
     }
 
-
-
-    public int[] getStart(){
-        return this.start;
-    }
-
-    public int[] getEnd(){
-        return this.end;
-    }
-
-    public Cell[][] getGrid(){
-        return grid;
-    }
 }
 
 
