@@ -95,6 +95,9 @@ public class Scene {
             renderGL(delta);
             lights();
             Display.update();
+            if(maze.getCurrent(Camera.getPos(), scale).equals(maze.maxCell)) {
+                closeRequested = true;
+            }
         }
 
         cleanup();
