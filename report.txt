@@ -55,7 +55,7 @@ sounds                        /* Wave format audio cue
 |- ...                           files.                 */
 build.xml                     /* Ant build file.        */
 README.txt                    /* This project report.   */
-A-Maze-3D.                    /* Video highlight.       */
+A-Maze-3D.mp4                 /* Video highlight.       */
 
 **************** Compilation Instructions ****************
 
@@ -89,6 +89,10 @@ several mesh objects --treasure chest, ghost, skull, rock,
 etc.-- collision prevention, spotlight lighting, and audio
 cues and background music.
 
+The audio cues, which includes a ghost noise, a fanfare at
+the moment the treasure is found, and an ever-looping bgm,
+play at their respective objects' appearance.
+
 The treasure chest is also under a gold spotlight, shining
 through the walls to mark the location of the goal for the
 user more palpably during exploration.
@@ -115,8 +119,8 @@ redundant user experience is not an issue.
 - Press A   :  Rotate view left.
 - Press D   :  Rotate view right.
 
-- Hold Q + Press <W/D> :  Move faster.
-- Hold E + Press <W/D> :  Move slower.
+- Hold Q + Press <W/S> :  Move faster.
+- Hold E + Press <W/S> :  Move slower.
 
 - Press ESC :  Close program window & quit.
 
