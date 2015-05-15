@@ -7,6 +7,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Vector3f;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.openal.Audio;
 import org.newdawn.slick.openal.AudioLoader;
 import org.newdawn.slick.opengl.Texture;
@@ -43,6 +44,9 @@ public class Scene {
     float[] dirTres = {0f, -1f, 0f, 1f};
     FloatBuffer ambTresB, posTresB, difTresB, specTresB, dirTresB;
 
+    float[] ghostPos = {0.0f, 0.1f, 1f, 1f};
+    FloatBuffer gPosB;
+
     //Fog
     int fogMode[] = {GL_EXP, GL_EXP2, GL_LINEAR};
     int fogfilter = 1;  // Change this to see the 3 different types of fog effects!
@@ -55,6 +59,7 @@ public class Scene {
     int[] ratRows = new int[10];
     int[] ratCols = new int[10];
     Mesh skull;
+
 
     static Maze maze;
 
@@ -73,6 +78,11 @@ public class Scene {
     float t = 0f;
     float speed = .025f;
 
+    float ghostSpeed = 0.25f;
+    Vector3f gPos = new Vector3f(0, 0, -30f);
+    int ghostCount = 1;
+    boolean ghostMov = false;
+
     public void run() {
         createWindow();
         getDelta(); // Initialise delta timer
@@ -80,7 +90,6 @@ public class Scene {
 
         maze = new Maze(10, 10);
         maze.generate();
-        maze.display();
 
         Camera.setPos(new Vector3f(maze.start[1] * 10 + 5, 3.373f, maze.start[0] * 10 + 5));
         int dir = maze.startCell.findFirstHole();
@@ -99,13 +108,15 @@ public class Scene {
         loadFloor();
         loadWalls();
 
+
         Random random = new Random();
         ratRows[0] = maze.start[0];
         ratCols[0] = maze.start[1];
-        for (int i = 1; i < ratRows.length; i++) {
+        ratRows[1] = maze.end[0];
+        ratCols[1] = maze.end[1];
+        for (int i = 2; i < ratRows.length; i++) {
             ratRows[i] = random.nextInt(maze.rows);
             ratCols[i] = random.nextInt(maze.cols);
-            System.out.println("Rat at: " + ratCols[i] + ", " + ratRows[i]);
         }
 
         while (!closeRequested) {
@@ -161,6 +172,7 @@ public class Scene {
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);                                      // Enable Light One
         glEnable(GL_LIGHT1);
+        glEnable(GL_LIGHT2);
         glEnable(GL_COLOR_MATERIAL);
         glEnable(GL_NORMALIZE);
         glFogi(GL_FOG_MODE, fogMode[fogfilter]);                  // Fog Mode
@@ -168,6 +180,8 @@ public class Scene {
         glFog(GL_FOG_COLOR, temp.asFloatBuffer());                // Set Fog Color
         glFogf(GL_FOG_DENSITY, 0.05f);                            // How Dense Will The Fog Be
         glHint(GL_FOG_HINT, GL_DONT_CARE);                   // Fog Hint Value
+        glFogf(GL_FOG_START, 10.0f);                               // Fog Start Depth
+        glFogf(GL_FOG_END, 17.f);                                 // Fog End Depth
         glEnable(GL_FOG);                                         // Enables GL_FOG
         Camera.create();
 
@@ -199,6 +213,10 @@ public class Scene {
         dirTresB = BufferUtils.createFloatBuffer(dirTres.length);
         dirTresB.put(dirTres);
         dirTresB.flip();
+
+        gPosB = BufferUtils.createFloatBuffer(ghostPos.length);
+        gPosB.put(ghostPos);
+        gPosB.flip();
 
         try {
             rock = new Mesh("models/", "rock.obj");
@@ -238,20 +256,6 @@ public class Scene {
      * Places the lights in the scene
      */
     private void lightsChest(float x, float z) {
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_UP))
-            posTres[2] += 0.1;
-        if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
-            posTres[2] -= 0.1;
-        if (Keyboard.isKeyDown(Keyboard.KEY_LEFT))
-            posTres[0] += 0.1;
-        if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT))
-            posTres[0] -= 0.1;
-        if (Keyboard.isKeyDown(Keyboard.KEY_RETURN))
-            posTres[1] += 0.1;
-        if (Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
-            posTres[1] -= 0.1;
-
         posTres[0] = x;
         posTres[2] = z;
 
@@ -262,7 +266,7 @@ public class Scene {
         glLoadIdentity();
         Camera.apply();
         glLightModel(GL_LIGHT_MODEL_AMBIENT, ambBuf);
-        glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
         glLight(GL_LIGHT1, GL_AMBIENT, ambTresB);
         glLight(GL_LIGHT1, GL_POSITION, posTresB);
         glLight(GL_LIGHT1, GL_DIFFUSE, difTresB);
@@ -273,31 +277,26 @@ public class Scene {
     }
 
     private void lights() {
-        /*
-        if (Keyboard.isKeyDown(Keyboard.KEY_UP))
-            position[2] += 0.1;
-        if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
-            position[2] -= 0.1;
-        if (Keyboard.isKeyDown(Keyboard.KEY_LEFT))
-            position[0] += 0.1;
-        if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT))
-            position[0] -= 0.1;
-        if(Keyboard.isKeyDown(Keyboard.KEY_RETURN))
-            position[1] += 0.1;
-        if(Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
-            position[1] -=0.1;
-        */
-
         posBuf = BufferUtils.createFloatBuffer(position.length);
         posBuf.put(position);
         posBuf.flip();
         glPushMatrix();
         glLoadIdentity();
         glLightModel(GL_LIGHT_MODEL_AMBIENT, ambBuf);
-        glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
         glLight(GL_LIGHT0, GL_AMBIENT, ambBuf);
         glLight(GL_LIGHT0, GL_POSITION, posBuf);
         glLight(GL_LIGHT0, GL_DIFFUSE, mDiffuseBuf);
+        glPopMatrix();
+    }
+
+    private void lightsGhost() {
+        glPushMatrix();
+        glLightModel(GL_LIGHT_MODEL_AMBIENT, ambBuf);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glLight(GL_LIGHT2, GL_AMBIENT, ambBuf);
+        glLight(GL_LIGHT2, GL_POSITION, gPosB);
+        glLight(GL_LIGHT2, GL_DIFFUSE, mDiffuseBuf);
         glPopMatrix();
     }
 
@@ -310,9 +309,25 @@ public class Scene {
         renderFloor();
         renderWalls();
         renderChest();
-        //renderGhost();
+        if(ghostMov)
+            renderGhost();
+
+        if(ghostCount%1000 == 0) {
+            boo.playAsMusic(1, 1, false);
+            ghostMov = true;
+        }
+        ghostCount++;
 
         t += speed;
+
+        for (int i = 0; i < ratRows.length; i++) {
+            glPushMatrix();
+            glTranslatef(scale * ratCols[i] + 5 + 3.5f * (float) Math.cos(t), 0, scale * ratRows[i] + 5 + 3.5f * (float) Math.sin(t));
+            glRotatef((float) -Math.toDegrees(t), 0, 1, 0);
+            glScalef(4f, 4f, 4f);
+            renderRat();
+            glPopMatrix();
+        }
 
         for (int i = 0; i < ratRows.length; i++) {
             glPushMatrix();
@@ -439,13 +454,7 @@ public class Scene {
         glCallList(floorDL);
         glDisable(GL_TEXTURE);
         glPopMatrix();
-        /*
-        glBegin(GL_LINES);
-        glColor3f(0f, 0f, 0f);
-        glVertex3f(.034f, .0154f, -0.105f);
-        glVertex3f(.036f, .0154f, -0.105f);
-        glEnd();
-        */
+
 
     }
 
@@ -537,29 +546,51 @@ public class Scene {
         float x = maze.end[1] * 10 + 5;
         float z = maze.end[0] * 10 + 5;
 
+
         if (dir == Maze.NORTH)
-            z += 3;
+            z -= 3;
         else if (dir == Maze.EAST)
             x += 3;
         else if (dir == Maze.WEST)
             x -= 3;
         else if (dir == Maze.SOUTH)
-            z -= 3;
+            z += 3;
         lightsChest(x, z);
-
+        x = maze.end[1] * 10 + 5;
+        z = maze.end[0] * 10 + 5;
         glPushMatrix();
-            glTranslatef(x, 0f, z);
+            glTranslatef(x, 2.2f, z);
+            if (dir == Maze.NORTH)
+                glRotatef(180f, 0, 1, 0);
+            else if (dir == Maze.EAST)
+                glRotatef(90f, 0, 1, 0);
+            else if (dir == Maze.WEST)
+                glRotatef(-90f, 0, 1, 0);
+
             glScalef(3f, 3f, 3f);
+            Color.white.bind();
             skull.renderMesh();
         glPopMatrix();
     }
 
     private void renderGhost() {
+        glDisable(GL_LIGHT0);
+        glDisable(GL_LIGHT1);
         glPushMatrix();
-        glTranslatef(0f, 0f, 10f);
-        //glScalef(.1f, .1f, .1f);
+        glLoadIdentity();
+        glTranslatef(gPos.x, -2f, (gPos.z += ghostSpeed));
+        lightsGhost();
+        glRotatef(-90, 1, 0, 0);
+        glScalef(5f, 5f, 5f);
         ghost.renderMesh();
         glPopMatrix();
+        glEnable(GL_LIGHT0);
+        glEnable(GL_LIGHT1);
+
+        if(gPos.z > 1f) {
+            ghostMov = false;
+            gPos = new Vector3f(0f, 0f, -30f);
+        }
     }
 
 
