@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -50,6 +51,9 @@ public class Scene {
     Mesh rock;
     Mesh chest;
     Mesh ghost;
+    Mesh rat;
+    int[] ratRows = new int[10];
+    int[] ratCols = new int[10];
 
     static Maze maze;
 
@@ -58,12 +62,15 @@ public class Scene {
 
     Audio spooky_ambience;
     Audio chest_fanfare;
+    Audio boo;
 
     int tileDL;
     int floorDL;
     int wallDL;
 
     static float scale = 10f;
+    float t = 0f;
+    float speed = .025f;
 
     public void run() {
         createWindow();
@@ -90,6 +97,15 @@ public class Scene {
         loadTile();
         loadFloor();
         loadWalls();
+
+        Random random = new Random();
+        ratRows[0] = maze.start[0];
+        ratCols[0] = maze.start[1];
+        for (int i = 1; i < ratRows.length; i++) {
+            ratRows[i] = random.nextInt(maze.rows);
+            ratCols[i] = random.nextInt(maze.cols);
+            System.out.println("Rat at: " + ratCols[i] + ", " + ratRows[i]);
+        }
 
         while (!closeRequested) {
             int delta = getDelta();
@@ -151,8 +167,6 @@ public class Scene {
         glFog(GL_FOG_COLOR, temp.asFloatBuffer());                // Set Fog Color
         glFogf(GL_FOG_DENSITY, 0.05f);                            // How Dense Will The Fog Be
         glHint(GL_FOG_HINT, GL_DONT_CARE);                   // Fog Hint Value
-        //glFogf(GL_FOG_START, 1.0f);                               // Fog Start Depth
-        //glFogf(GL_FOG_END, 5.0f);                                 // Fog End Depth
         glEnable(GL_FOG);                                         // Enables GL_FOG
         Camera.create();
 
@@ -195,6 +209,9 @@ public class Scene {
             ghost = new Mesh("models/", "Creature.obj");
             ghost.loadModel();
 
+            rat = new Mesh("models/", "rat_01.obj");
+            rat.loadModel();
+
             wall = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon_walls_1.jpg"));
             floor = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("models/dungeon__floor.jpg"));
 
@@ -202,6 +219,7 @@ public class Scene {
             spooky_ambience.playAsSoundEffect(1.0f, 1.0f, true);
 
             chest_fanfare = AudioLoader.getAudio("WAV", ResourceLoader.getResourceAsStream("sounds/chest_fanfare.wav"));
+            boo = AudioLoader.getAudio("WAV", ResourceLoader.getResourceAsStream("sounds/boo_laugh.wav"));
 
             // polling is required to allow streaming to get a chance to
             // queue buffers
@@ -289,6 +307,17 @@ public class Scene {
         renderWalls();
         renderChest();
         //renderGhost();
+
+        t += speed;
+
+        for (int i = 0; i < ratRows.length; i++) {
+            glPushMatrix();
+            glTranslatef(scale * ratCols[i] + 5 + 3.5f * (float) Math.cos(t), 0, scale * ratRows[i] + 5 + 3.5f * (float) Math.sin(t));
+            glRotatef((float) -Math.toDegrees(t), 0, 1, 0);
+            glScalef(4f, 4f, 4f);
+            renderRat();
+            glPopMatrix();
+        }
 
         // map of maze
         glDisable(GL_LIGHTING);
@@ -482,6 +511,12 @@ public class Scene {
         glPopMatrix();
     }
 
+    private void renderRat() {
+        glPushMatrix();
+        rat.renderMesh();
+        glPopMatrix();
+    }
+
     private void renderChest() {
         int dir = maze.maxCell.findFirstHole();
         glPushMatrix();
@@ -517,7 +552,6 @@ public class Scene {
         ghost.renderMesh();
         glPopMatrix();
     }
-
 
     /**
      * Poll Input
