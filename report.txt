@@ -89,6 +89,10 @@ several mesh objects --treasure chest, ghost, skull, rock,
 etc.-- collision prevention, spotlight lighting, and audio
 cues and background music.
 
+The audio cues, which includes a ghost noise, a fanfare at
+the moment the treasure is found, and an ever-looping bgm,
+play at their respective objects' appearance.
+
 The treasure chest is also under a gold spotlight, shining
 through the walls to mark the location of the goal for the
 user more palpably during exploration.
