@@ -449,10 +449,10 @@ public class Scene {
         glTranslatef(0f, 0f, 0f);
         glScalef(scale, scale, scale);
         glColor3f(1f, 1f, 1f);
-        glEnable(GL_TEXTURE);
+        glEnable(GL_TEXTURE_2D);
         floor.bind();
         glCallList(floorDL);
-        glDisable(GL_TEXTURE);
+        glDisable(GL_TEXTURE_2D);
         glPopMatrix();
 
 
@@ -510,10 +510,10 @@ public class Scene {
         glTranslatef(0f, 0f, 0f);
         glScalef(scale, scale, scale);
         glColor3f(1f, 1f, 1f);
-        glEnable(GL_TEXTURE);
+        glEnable(GL_TEXTURE_2D);
         wall.bind();
         glCallList(wallDL);
-        glDisable(GL_TEXTURE);
+        glDisable(GL_TEXTURE_2D);
         glPopMatrix();
     }
 
