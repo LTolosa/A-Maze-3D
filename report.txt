@@ -55,7 +55,7 @@ sounds                        /* Wave format audio cue
 |- ...                           files.                 */
 build.xml                     /* Ant build file.        */
 README.txt                    /* This project report.   */
-A-Maze-3D.                    /* Video highlight.       */
+A-Maze-3D.mp4                 /* Video highlight.       */
 
 **************** Compilation Instructions ****************
 
@@ -115,8 +115,8 @@ redundant user experience is not an issue.
 - Press A   :  Rotate view left.
 - Press D   :  Rotate view right.
 
-- Hold Q + Press <W/D> :  Move faster.
-- Hold E + Press <W/D> :  Move slower.
+- Hold Q + Press <W/S> :  Move faster.
+- Hold E + Press <W/S> :  Move slower.
 
 - Press ESC :  Close program window & quit.
 
