@@ -1,0 +1,144 @@
+# A-Maze-3D
+Final Project for Computer Graphics
+
+COMS W 4160 Computer Graphics Final Project Report
+
+**********************************************************
+*                                                        *
+*   Final Project "A-Maze 3D"                            *
+*                                                        *
+*   Luis Tolosa          let2120                         *
+*   Phillip Godzin       pgg2105                         *
+*   Ernesto Sandoval     es3187                          *
+*                                                        *
+**********************************************************
+
+********************** Work Share ************************
+
+The work was largely collaborative. The task list below is
+but a rough delineation of responsibilities, and shows the
+group member's focus more than discretely assigned tasks.
+
+Luis:
+
+  - Object loading.
+  - Maze rendering.
+  - Ghost spawns.
+  - Collision prevention.
+
+Phillip:
+
+  - Fog.
+  - Audio effects.
+  - Mini-map.
+  - Mice spawns.
+
+Ernesto:
+
+  - Maze generation.
+  - Cell definition.
+  - Path planning.
+  - Spot-lighting.
+
+***************** Project File Structure *****************
+
+src                           /* Source code directory. */
+|- Camera.java                /* Camera defintion.      */
+|-   Cell.java                /* Maze cell definition.  */
+|-   Maze.java                /* Maze grid definition.  */
+|-   Mesh.java                /* Mesh handling class.   */
+|-  Scene.java                /* Main project class.    */
+lib                           /* Libraries directory.   */
+|- lwjgl-2.9.3                /* LWJGL 2.9.3 files.     */
+|- slick-util.jar             /* Slick2D library.       */
+models                        /* Material, texture, and
+|- ...                           object-related files.  */
+sounds                        /* Wave format audio cue
+|- ...                           files.                 */
+build.xml                     /* Ant build file.        */
+README.txt                    /* This project report.   */
+A-Maze-3D.mp4                 /* Video highlight.       */
+
+**************** Compilation Instructions ****************
+
+Please use Apache Ant's 'ant' command while in the project
+base directory to compile and run "A-Maze 3D".
+
+******************* Project Description ******************
+
+For this project we implemented an immersive, procedurally
+generated maze environment.
+
+The program renders a texturized, 3D maze where a user, in
+first-person camera perspective, begins at a one point and
+tries to reach a treasure at an end point, thereby solving
+the maze.
+
+The maze implementation consists of a generation algorithm
+for a perfect maze, meaning that every cell in a maze is a
+cell in a path, leaving no cell unreachable.
+
+The generation algorithm is such that any maze it makes is
+a random depth-first traversal of the maze's grid layout & 
+the solution path from the random start point to the chest
+of treasure is the largest-depth path in the DFS tree. The
+effect of this is to ensure the user explores the maze for
+as much as possible.
+
+Features of the program beyond the maze include a sporadic 
+ghost generator, inclusion of fog in the scene, the use of
+several mesh objects --treasure chest, ghost, skull, rock,
+etc.-- collision prevention, spotlight lighting, and audio
+cues and background music.
+
+The audio cues, which includes a ghost noise, a fanfare at
+the moment the treasure is found, and an ever-looping bgm,
+play at their respective objects' appearance.
+
+The treasure chest is also under a gold spotlight, shining
+through the walls to mark the location of the goal for the
+user more palpably during exploration.
+
+The features, together with the main maze, work toward the
+main goal of this project: presenting an interactive, fun,
+graphically interesting, and spooky experience.
+
+Another feature is the on-screen mini-map that shows users
+where in the generated maze they currently are (red) & the
+location of the treasure (yellow). The map, however, isn't
+revealed entirely at the beginning, and relies on a user's
+exploration of the maze to reveal only the cells that have
+been visited.
+
+Of note is that the program generates a new unique maze on
+each new run of itself thanks to the algorithm used. Thus,
+redundant user experience is not an issue.
+
+********************** User Controls *********************
+
+- Press W   :  Move forward.
+- Press S   :  Move backward.
+- Press A   :  Rotate view left.
+- Press D   :  Rotate view right.
+
+- Hold Q + Press <W/S> :  Move faster.
+- Hold E + Press <W/S> :  Move slower.
+
+- Press ESC :  Close program window & quit.
+
+******************* Sources Cited / Used *****************
+
+We used the perfect maze generating algorithm described in
+MazeWorks's site at:
+
+	http://www.mazeworks.com/mazegen/mazetut/
+
+The Java implementation and OpenGL rendering, however, are
+our own.
+
+Most of our object models, including those of a ghost, the
+treasure chest, skulls, bones, mice, and rocks were freely
+taken from TurboSquid and Yobi3D.
+
+Textures for the maze floor and walls and sound files were
+taken from freeware sources found online.
